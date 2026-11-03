@@ -1,11 +1,14 @@
+
 /* =========================================================
    FTTH MANAGER — BUSCA DE LOCALIZAÇÃO
    Arquivo: search.js
-   Serviço de geocodificação: Nominatim / OpenStreetMap
+   Geocodificação: Nominatim / OpenStreetMap
    ========================================================= */
 
 let searchResults = [];
 let searchRequestController = null;
+let searchMarker = null;
+let searchResultsContainer = null;
 
 /* ---------------------------------------------------------
    INICIALIZAÇÃO
@@ -15,7 +18,15 @@ function initSearch() {
     const input = document.getElementById("locationSearch");
     const button = document.getElementById("locationSearchBtn");
 
-    if (!input || !button) return;
+    if (!input || !button) {
+        console.warn("Campo de pesquisa não encontrado.");
+        return;
+    }
+
+    if (input.dataset.searchInitialized === "true") return;
+    input.dataset.searchInitialized = "true";
+
+    button.textContent = "Pesquisar";
 
     button.addEventListener("click", () => {
         searchLocation(input.value);
@@ -26,6 +37,10 @@ function initSearch() {
             event.preventDefault();
             searchLocation(input.value);
         }
+
+        if (event.key === "Escape") {
+            clearSearchResults();
+        }
     });
 
     input.addEventListener("input", () => {
@@ -33,10 +48,53 @@ function initSearch() {
             clearSearchResults();
         }
     });
+
+    createSearchResultsContainer();
+
+    // Remove a marcação quando o usuário clicar em outro ponto do mapa.
+    if (map && !map._ftthSearchClearHandler) {
+        map._ftthSearchClearHandler = true;
+
+        map.on("click", event => {
+            if (event.originalEvent?.target?.closest?.(
+                ".leaflet-marker-icon, .leaflet-popup"
+            )) {
+                return;
+            }
+
+            clearSearchMarker();
+        });
+    }
 }
 
 /* ---------------------------------------------------------
-   PESQUISAR ENDEREÇO, CIDADE OU BAIRRO
+   CONTAINER DOS RESULTADOS
+--------------------------------------------------------- */
+
+function createSearchResultsContainer() {
+    const input = document.getElementById("locationSearch");
+    if (!input) return null;
+
+    let container = document.getElementById("locationSearchResults");
+
+    if (!container) {
+        container = document.createElement("div");
+        container.id = "locationSearchResults";
+        container.className = "location-search-results";
+
+        const parent = input.parentElement;
+
+        if (parent) {
+            parent.appendChild(container);
+        }
+    }
+
+    searchResultsContainer = container;
+    return container;
+}
+
+/* ---------------------------------------------------------
+   PESQUISAR
 --------------------------------------------------------- */
 
 async function searchLocation(query) {
@@ -51,7 +109,8 @@ async function searchLocation(query) {
         searchRequestController.abort();
     }
 
-    searchRequestController = new AbortController();
+    const controller = new AbortController();
+    searchRequestController = controller;
 
     const button = document.getElementById("locationSearchBtn");
 
@@ -60,13 +119,18 @@ async function searchLocation(query) {
         button.textContent = "Buscando...";
     }
 
+    clearSearchResults();
+
     try {
         const params = new URLSearchParams({
             q: search,
             format: "jsonv2",
             addressdetails: "1",
-            limit: "8",
-            countrycodes: "br"
+            namedetails: "1",
+            limit: "10",
+            countrycodes: "br",
+            "accept-language": "pt-BR",
+            dedupe: "1"
         });
 
         const response = await fetch(
@@ -76,42 +140,100 @@ async function searchLocation(query) {
                 headers: {
                     "Accept": "application/json"
                 },
-                signal: searchRequestController.signal
+                signal: controller.signal
             }
         );
 
         if (!response.ok) {
-            throw new Error("Não foi possível consultar o serviço de localização.");
+            throw new Error(`Serviço de localização respondeu ${response.status}.`);
         }
 
         const results = await response.json();
 
-        searchResults = Array.isArray(results) ? results : [];
+        if (controller !== searchRequestController) return;
+
+        searchResults = sortSearchResults(
+            Array.isArray(results) ? results : [],
+            search
+        );
 
         renderSearchResults(searchResults);
 
-        if (searchResults.length === 0) {
-            searchToast("Nenhum endereço encontrado.", "warning");
+        if (!searchResults.length) {
+            searchToast("Nenhum resultado encontrado no Brasil.", "warning");
         }
 
     } catch (error) {
-        if (error.name === "AbortError") {
-            return;
-        }
+        if (error.name === "AbortError") return;
 
         console.error("Erro na busca:", error);
 
         searchToast(
-            "Erro ao pesquisar. Verifique sua conexão e tente novamente.",
+            "Não foi possível pesquisar. Tente novamente em alguns segundos.",
             "error"
         );
 
     } finally {
-        if (button) {
+        if (controller === searchRequestController && button) {
             button.disabled = false;
-            button.textContent = "Buscar";
+            button.textContent = "Pesquisar";
         }
     }
+}
+
+/* ---------------------------------------------------------
+   ORDENAR RESULTADOS
+--------------------------------------------------------- */
+
+function sortSearchResults(results, query) {
+    const normalizedQuery = normalizeSearchText(query);
+
+    return [...results].sort((a, b) => {
+        const scoreA = getSearchScore(a, normalizedQuery);
+        const scoreB = getSearchScore(b, normalizedQuery);
+
+        return scoreB - scoreA;
+    });
+}
+
+function getSearchScore(result, query) {
+    const name = normalizeSearchText(getSearchTitle(result));
+    const display = normalizeSearchText(result.display_name || "");
+    const address = result.address || {};
+
+    let score = Number(result.importance || 0) * 10;
+
+    if (name === query) score += 100;
+    else if (name.startsWith(query)) score += 55;
+    else if (name.includes(query)) score += 30;
+
+    if (display.startsWith(query)) score += 15;
+
+    if (address.country_code === "br") score += 10;
+
+    const type = String(result.type || "").toLowerCase();
+    const category = String(result.category || "").toLowerCase();
+
+    if (
+        ["city", "town", "village", "municipality", "administrative"]
+            .includes(type)
+    ) {
+        score += 12;
+    }
+
+    if (category === "place" || category === "boundary") {
+        score += 8;
+    }
+
+    return score;
+}
+
+function normalizeSearchText(value) {
+    return String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
 }
 
 /* ---------------------------------------------------------
@@ -119,24 +241,8 @@ async function searchLocation(query) {
 --------------------------------------------------------- */
 
 function renderSearchResults(results) {
-    const input = document.getElementById("locationSearch");
-
-    if (!input) return;
-
-    let container = document.getElementById("locationSearchResults");
-
-    if (!container) {
-        container = document.createElement("div");
-
-        container.id = "locationSearchResults";
-        container.className = "location-search-results";
-
-        const searchContainer = input.parentElement;
-
-        if (searchContainer) {
-            searchContainer.appendChild(container);
-        }
-    }
+    const container = createSearchResultsContainer();
+    if (!container) return;
 
     container.innerHTML = "";
 
@@ -171,21 +277,22 @@ function renderSearchResults(results) {
 }
 
 /* ---------------------------------------------------------
-   NOME PRINCIPAL DO RESULTADO
+   TÍTULO DO RESULTADO
 --------------------------------------------------------- */
 
 function getSearchTitle(result) {
     const address = result.address || {};
 
     return (
+        result.namedetails?.name ||
         address.city ||
         address.town ||
         address.village ||
+        address.municipality ||
         address.suburb ||
         address.neighbourhood ||
-        address.municipality ||
         result.name ||
-        result.display_name.split(",")[0] ||
+        result.display_name?.split(",")[0] ||
         "Local encontrado"
     );
 }
@@ -205,47 +312,106 @@ function getSearchSubtitle(result) {
 function selectSearchResult(index) {
     const result = searchResults[index];
 
-    if (!result || !map) return;
+    if (!result || !map) {
+        searchToast("Resultado inválido ou mapa não carregado.", "error");
+        return;
+    }
 
     const latitude = Number(result.lat);
     const longitude = Number(result.lon);
 
-    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+    if (
+        !Number.isFinite(latitude) ||
+        !Number.isFinite(longitude) ||
+        latitude < -90 ||
+        latitude > 90 ||
+        longitude < -180 ||
+        longitude > 180
+    ) {
         searchToast("Coordenadas inválidas.", "error");
         return;
     }
 
+    clearSearchMarker();
+
     const position = [latitude, longitude];
+    const title = getSearchTitle(result);
 
-    map.flyTo(position, getZoomForSearchResult(result), {
-        animate: true,
-        duration: 1.2
-    });
+    const bounds = getSearchBounds(result);
 
-    if (window.searchLocationMarker) {
-        map.removeLayer(window.searchLocationMarker);
+    if (bounds) {
+        map.flyToBounds(bounds, {
+            padding: [45, 45],
+            maxZoom: getZoomForSearchResult(result),
+            duration: 1.2
+        });
+    } else {
+        map.flyTo(position, getZoomForSearchResult(result), {
+            animate: true,
+            duration: 1.2
+        });
     }
 
-    window.searchLocationMarker = L.marker(position, {
-        title: getSearchTitle(result)
+    searchMarker = L.marker(position, {
+        title,
+        riseOnHover: true,
+        keyboard: true
     }).addTo(map);
 
-    window.searchLocationMarker.bindPopup(
-        `<strong>${escapeHTML(getSearchTitle(result))}</strong>
-         <br>${escapeHTML(result.display_name || "")}`
-    ).openPopup();
+    searchMarker.bindPopup(`
+        <div class="search-popup">
+            <strong>${escapeHTML(title)}</strong>
+            <p>${escapeHTML(result.display_name || "")}</p>
+            <button type="button" onclick="clearSearchMarker()">
+                Remover marcação
+            </button>
+        </div>
+    `);
+
+    searchMarker.openPopup();
+
+    // Mantém compatibilidade com o código anterior.
+    window.searchLocationMarker = searchMarker;
 
     const input = document.getElementById("locationSearch");
 
     if (input) {
-        input.value = getSearchTitle(result);
+        input.value = title;
     }
 
     clearSearchResults();
 }
 
 /* ---------------------------------------------------------
-   ZOOM AUTOMÁTICO
+   LIMITES GEOGRÁFICOS
+--------------------------------------------------------- */
+
+function getSearchBounds(result) {
+    if (!Array.isArray(result.boundingbox) || result.boundingbox.length !== 4) {
+        return null;
+    }
+
+    const south = Number(result.boundingbox[0]);
+    const north = Number(result.boundingbox[1]);
+    const west = Number(result.boundingbox[2]);
+    const east = Number(result.boundingbox[3]);
+
+    if (![south, north, west, east].every(Number.isFinite)) {
+        return null;
+    }
+
+    if (south === north || west === east) {
+        return null;
+    }
+
+    return L.latLngBounds(
+        [south, west],
+        [north, east]
+    );
+}
+
+/* ---------------------------------------------------------
+   ZOOM ADEQUADO
 --------------------------------------------------------- */
 
 function getZoomForSearchResult(result) {
@@ -253,27 +419,21 @@ function getZoomForSearchResult(result) {
     const category = String(result.category || "").toLowerCase();
 
     if (
-        type.includes("city") ||
-        type.includes("town") ||
-        type.includes("village") ||
-        category.includes("boundary")
+        ["city", "town", "village", "municipality"].includes(type) ||
+        category === "boundary"
     ) {
         return 13;
     }
 
     if (
-        type.includes("suburb") ||
-        type.includes("neighbourhood") ||
-        type.includes("residential")
+        ["suburb", "neighbourhood", "quarter", "residential"].includes(type)
     ) {
         return 16;
     }
 
     if (
-        type.includes("road") ||
-        type.includes("street") ||
-        type.includes("house")
-    ) {
+        ["road", "street", "house", "building"].includes(type
+    )) {
         return 18;
     }
 
@@ -285,12 +445,27 @@ function getZoomForSearchResult(result) {
 --------------------------------------------------------- */
 
 function clearSearchResults() {
-    const container = document.getElementById("locationSearchResults");
+    const container =
+        searchResultsContainer ||
+        document.getElementById("locationSearchResults");
 
     if (container) {
         container.innerHTML = "";
         container.style.display = "none";
     }
+}
+
+/* ---------------------------------------------------------
+   LIMPAR MARCADOR
+--------------------------------------------------------- */
+
+function clearSearchMarker() {
+    if (searchMarker && map && map.hasLayer(searchMarker)) {
+        map.removeLayer(searchMarker);
+    }
+
+    searchMarker = null;
+    window.searchLocationMarker = null;
 }
 
 /* ---------------------------------------------------------
@@ -301,17 +476,6 @@ function searchToast(message, type = "info") {
     if (typeof toast === "function") {
         toast(message, type);
     } else {
-        console.log(message);
-    }
-}
-
-/* ---------------------------------------------------------
-   LIMPAR MARCADOR DE PESQUISA
---------------------------------------------------------- */
-
-function clearSearchMarker() {
-    if (window.searchLocationMarker && map) {
-        map.removeLayer(window.searchLocationMarker);
-        window.searchLocationMarker = null;
+        console.log(`[${type}] ${message}`);
     }
 }

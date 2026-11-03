@@ -5,7 +5,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#090b0f">
-
   <title>FTTH Manager</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,14 +12,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/map.css">
-  <link rel="stylesheet" href="css/engineering.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="map.css">
+  <link rel="stylesheet" href="engineering.css">
 </head>
 
 <body>
-
 <div class="app">
 
   <header class="topbar">
@@ -35,22 +32,12 @@
     <div class="top-actions">
       <button id="backupBtn">Backup</button>
       <button id="exportKmlBtn">Exportar KML</button>
-
-      <button class="primary" id="importBtn">
-        Importar KML/KMZ
-      </button>
-
-      <input
-        type="file"
-        id="importFile"
-        accept=".kml,.kmz,.json"
-        hidden
-      >
+      <button class="primary" id="importBtn">Importar KML/KMZ</button>
+      <input type="file" id="importFile" accept=".kml,.kmz,.json" hidden>
     </div>
   </header>
 
   <div class="main-layout">
-
     <aside class="sidebar">
 
       <nav class="tabs">
@@ -61,7 +48,6 @@
       </nav>
 
       <!-- VISÃO GERAL -->
-
       <section class="tab-content active" id="tab-dashboard">
 
         <div class="section-heading">
@@ -70,42 +56,34 @@
         </div>
 
         <div class="stats-grid">
-
           <div class="stat-card">
             <strong id="statCtos">0</strong>
             <span>CTOs</span>
           </div>
-
           <div class="stat-card">
             <strong id="statClients">0</strong>
             <span>Clientes</span>
           </div>
-
           <div class="stat-card">
             <strong id="statBoxes">0</strong>
             <span>Caixas / CEOs</span>
           </div>
-
           <div class="stat-card">
             <strong id="statCables">0</strong>
             <span>Cabos</span>
           </div>
-
           <div class="stat-card">
             <strong id="statFree">0</strong>
             <span>Portas livres</span>
           </div>
-
           <div class="stat-card">
             <strong id="statImported">0</strong>
             <span>Importados</span>
           </div>
-
         </div>
 
         <div class="section">
           <h3>Acesso rápido</h3>
-
           <div class="quick-actions">
             <button data-tool="cto">＋ Nova CTO</button>
             <button data-tool="ceo">＋ Nova CEO</button>
@@ -129,21 +107,14 @@
             <div class="empty-state">Nenhum cadastro realizado.</div>
           </div>
         </div>
-
       </section>
 
       <!-- REDE -->
-
       <section class="tab-content" id="tab-network">
-
         <h2>Minha rede</h2>
 
         <div class="field">
-          <input
-            type="search"
-            id="networkSearch"
-            placeholder="Pesquisar CTO, cliente, caixa..."
-          >
+          <input type="search" id="networkSearch" placeholder="Pesquisar CTO, cliente, caixa...">
         </div>
 
         <div class="section">
@@ -167,20 +138,21 @@
         </div>
 
         <div class="section">
+          <h3>Cabos ópticos</h3>
+          <div id="cableList" class="item-list"></div>
+        </div>
+
+        <div class="section">
           <h3>Clientes</h3>
           <div id="clientList" class="item-list"></div>
         </div>
-
       </section>
 
       <!-- ENGENHARIA -->
-
       <section class="tab-content" id="tab-engineering">
-
         <h2>Engenharia FTTH</h2>
 
         <div class="engineering-menu">
-
           <button data-engineering="cables">
             <span>⌁</span>
             <div>
@@ -212,22 +184,17 @@
               <small>Ocupação e capacidade</small>
             </div>
           </button>
-
         </div>
 
         <div id="engineeringContent"></div>
-
       </section>
 
       <!-- AJUSTES -->
-
       <section class="tab-content" id="tab-settings">
-
         <h2>Configurações</h2>
 
         <div class="section">
           <h3>Mapa</h3>
-
           <p class="description">
             Satélite Esri e ruas OpenStreetMap.
             Não precisa de chave de API do Google.
@@ -241,7 +208,6 @@
 
         <div class="section">
           <h3>Armazenamento</h3>
-
           <p class="description">
             Os dados ficam salvos neste navegador e dispositivo.
             Faça backups regularmente.
@@ -262,67 +228,35 @@
           </p>
           <small>Versão 2.0</small>
         </div>
-
       </section>
 
     </aside>
 
     <!-- MAPA -->
-
     <main class="map-area">
-
       <div id="map"></div>
 
-      <!-- PESQUISA DO MAPA -->
-
       <div class="map-search">
-
         <input
           id="locationSearch"
           type="search"
           placeholder="Pesquisar cidade, bairro ou endereço..."
         >
-
-        <button id="locationSearchBtn">
-          Pesquisar
-        </button>
-
+        <button id="locationSearchBtn">Pesquisar</button>
       </div>
 
       <!-- FERRAMENTAS -->
-
       <div class="map-toolbar">
-
-        <button class="tool-button active" data-tool="select">
-          ↖ Selecionar
-        </button>
-
-        <button class="tool-button" data-tool="cto">
-          CTO
-        </button>
-
-        <button class="tool-button" data-tool="ceo">
-          CEO
-        </button>
-
-        <button class="tool-button" data-tool="splitter">
-          Splitter
-        </button>
-
-        <button class="tool-button" data-tool="pole">
-          Poste
-        </button>
-
-        <button class="tool-button" data-tool="cable">
-          ⌁ Fibra
-        </button>
-
+        <button class="tool-button active" data-tool="select">↖ Selecionar</button>
+        <button class="tool-button" data-tool="cto">CTO</button>
+        <button class="tool-button" data-tool="ceo">CEO</button>
+        <button class="tool-button" data-tool="splitter">Splitter</button>
+        <button class="tool-button" data-tool="pole">Poste</button>
+        <button class="tool-button" data-tool="cable">⌁ Fibra</button>
       </div>
 
       <!-- PAINEL DE DESENHO -->
-
       <div class="drawing-panel hidden" id="drawingPanel">
-
         <div class="drawing-header">
           <strong>Desenho de fibra óptica</strong>
           <span id="drawingCounter">0 pontos</span>
@@ -330,7 +264,6 @@
 
         <div class="drawing-field">
           <label for="cableName">Identificação do cabo</label>
-
           <input
             id="cableName"
             type="text"
@@ -339,19 +272,13 @@
         </div>
 
         <div class="drawing-options">
-
           <div>
             <label for="cableColor">Cor</label>
-            <input
-              id="cableColor"
-              type="color"
-              value="#ffca55"
-            >
+            <input id="cableColor" type="color" value="#ffca55">
           </div>
 
           <div>
             <label for="cableWidth">Espessura</label>
-
             <select id="cableWidth">
               <option value="2">Fina</option>
               <option value="4" selected>Normal</option>
@@ -362,7 +289,6 @@
 
           <div>
             <label for="cableFibers">Fibras</label>
-
             <select id="cableFibers">
               <option value="2">2 FO</option>
               <option value="6">6 FO</option>
@@ -374,23 +300,13 @@
               <option value="144">144 FO</option>
             </select>
           </div>
-
         </div>
 
         <div class="drawing-actions">
-
           <button id="undoDrawing">↶ Desfazer</button>
-
           <button id="redoDrawing">↷ Refazer</button>
-
-          <button id="cancelDrawing" class="danger">
-            ✕ Cancelar
-          </button>
-
-          <button id="finishDrawing" class="primary">
-            ✓ Finalizar
-          </button>
-
+          <button id="cancelDrawing" class="danger">✕ Cancelar</button>
+          <button id="finishDrawing" class="primary">✓ Finalizar</button>
         </div>
 
         <p class="drawing-help">
@@ -398,55 +314,41 @@
           A linha acompanha o mouse em tempo real.
           Você pode desfazer, refazer, cancelar ou finalizar.
         </p>
-
       </div>
-
-      <!-- INFORMAÇÕES DO DESENHO -->
 
       <div id="mapHint" class="map-hint"></div>
 
-      <!-- LEGENDA -->
-
       <div class="map-legend">
-
         <div><span class="legend-cto"></span> CTO</div>
         <div><span class="legend-ceo"></span> CEO</div>
         <div><span class="legend-splitter"></span> Splitter</div>
         <div><span class="legend-pole"></span> Poste</div>
         <div><span class="legend-client"></span> Cliente</div>
         <div><span class="legend-cable"></span> Fibra</div>
-
       </div>
-
     </main>
-
   </div>
-
 </div>
 
-<!-- MODAIS -->
-
+<!-- MODAIS E NOTIFICAÇÕES -->
 <div id="modalRoot"></div>
-
 <div id="toastContainer"></div>
 
 <!-- BIBLIOTECAS -->
-
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 
-<!-- APLICAÇÃO -->
-
-<script src="js/storage.js"></script>
-<script src="js/map.js"></script>
-<script src="js/drawing.js"></script>
-<script src="js/search.js"></script>
-<script src="js/imports.js"></script>
-<script src="js/equipment.js"></script>
-<script src="js/cables.js"></script>
-<script src="js/clients.js"></script>
-<script src="js/engineering.js"></script>
-<script src="js/app.js"></script>
+<!-- MÓDULOS DO SISTEMA: TODOS NA RAIZ -->
+<script src="storage.js"></script>
+<script src="map.js"></script>
+<script src="drawing.js"></script>
+<script src="search.js"></script>
+<script src="imports.js"></script>
+<script src="equipment.js"></script>
+<script src="cables.js"></script>
+<script src="clients.js"></script>
+<script src="engineering.js"></script>
+<script src="app.js"></script>
 
 </body>
 </html>

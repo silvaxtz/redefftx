@@ -1,354 +1,1318 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#090b0f">
-  <title>FTTH Manager</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="map.css">
-  <link rel="stylesheet" href="engineering.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090b0f">
+<title>FTTH Manager</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--bg:#090b0f;--panel:#11151c;--panel2:#19212b;--line:#2a3442;--muted:#9aa6b5;--text:#f4f6f8;--green:#20c878;--blue:#438cff;--red:#e76570}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px Arial,sans-serif}button,input,select,textarea{font:inherit}button{border:1px solid var(--line);background:#202a37;color:white;border-radius:8px;padding:9px 12px;cursor:pointer}button:hover{filter:brightness(1.15)}button.primary{background:#f1f3f6;color:#10151c}button.danger{background:#351d22;border-color:#63343b;color:#ffb0b6}.app{height:100vh;display:grid;grid-template-rows:60px 1fr}.top{display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:#0d1117;border-bottom:1px solid var(--line);gap:10px}.brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:1px}.logo{height:36px;width:36px;border-radius:9px;background:#eef0f3;color:#111;display:grid;place-items:center;font-size:19px}.brand small{display:block;color:var(--muted);font-size:10px;letter-spacing:0;font-weight:400;margin-top:3px}.actions{display:flex;gap:7px;flex-wrap:wrap}.layout{display:grid;grid-template-columns:340px 1fr;min-height:0}.sidebar{background:var(--panel);border-right:1px solid var(--line);overflow:auto;padding:12px}.tabs{display:flex;gap:5px;margin-bottom:15px}.tab{flex:1;background:transparent;color:var(--muted);font-size:12px;padding:9px 5px}.tab.active{background:var(--panel2);color:#fff}.panel{display:none}.panel.active{display:block}.heading{display:flex;justify-content:space-between;align-items:center}.heading h2{font-size:17px}.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stat{background:var(--panel2);border:1px solid var(--line);padding:13px;border-radius:10px}.stat b{display:block;font-size:24px}.stat span{font-size:11px;color:var(--muted)}.section{margin:16px 0}.section h3{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:0 0 9px}.list{display:flex;flex-direction:column;gap:7px}.item{background:#0d1219;border:1px solid var(--line);border-radius:9px;padding:10px;display:flex;justify-content:space-between;align-items:center;gap:8px}.item strong{display:block}.item small{color:var(--muted);font-size:11px}.field{display:flex;flex-direction:column;gap:5px;margin:10px 0}.field label{font-size:12px;color:#bdc6d1}.field input,.field select,.field textarea{width:100%;background:#0b1016;border:1px solid #34404e;border-radius:8px;padding:10px;color:white}.row{display:flex;gap:8px}.row>*{flex:1;min-width:0}.mapwrap{position:relative;min-width:0}#map{height:100%;width:100%;background:#171d25}.maptools{position:absolute;top:12px;left:12px;z-index:500;display:flex;gap:6px;flex-wrap:wrap;max-width:calc(100% - 24px)}.maptools button{background:#101722ed;font-size:12px}.maptools button.active{background:#f2f4f7;color:#10151b}.searchbar{position:absolute;z-index:500;top:12px;left:50%;transform:translateX(-50%);width:min(440px,48%);display:flex;background:#101722;border:1px solid #435064;border-radius:10px;padding:5px;gap:5px}.searchbar input{flex:1;min-width:0;background:transparent;border:0;color:#fff;padding:8px;outline:0}.search-results{position:absolute;z-index:1000;top:62px;left:50%;transform:translateX(-50%);width:min(440px,48%);background:#101722;border:1px solid #435064;border-radius:9px;max-height:260px;overflow:auto}.search-results button{display:block;width:100%;text-align:left;border:0;border-radius:0;background:transparent}.search-results button+button{border-top:1px solid #293444}.hint{position:absolute;z-index:500;bottom:15px;left:50%;transform:translateX(-50%);background:#101722ed;border:1px solid #435064;padding:9px 13px;border-radius:9px;display:none}.modalback{position:fixed;inset:0;background:#000b;z-index:2000;display:grid;place-items:center;padding:14px}.modal{background:#121923;border:1px solid #3a4656;border-radius:14px;padding:18px;width:min(520px,100%);max-height:90vh;overflow:auto}.modalhead{display:flex;justify-content:space-between;align-items:center}.modal h2{font-size:18px}.ports{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0}.port{font-size:11px;text-align:center;padding:10px 3px;border:1px solid #394758;border-radius:7px;background:#1a2430}.port.used{background:#193b2b;border-color:#286b48}.port button{padding:0;border:0;background:transparent}.empty{padding:12px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:8px;font-size:12px}.toast{position:fixed;z-index:3000;bottom:18px;right:18px;background:#edf1f5;color:#111;padding:12px 16px;border-radius:9px;font-weight:bold}.legend{position:absolute;bottom:18px;right:16px;z-index:500;background:#101722ed;padding:10px 13px;border-radius:9px;font-size:11px;line-height:1.8}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}.leaflet-control-layers{background:#101722;color:white;border:1px solid #394758}.leaflet-control-attribution{background:#101722cc!important;color:#ddd!important}.leaflet-control-attribution a{color:#9bc3ff!important}
+@media(max-width:800px){.app{height:auto;min-height:100vh;grid-template-rows:auto auto}.top{padding:9px;align-items:flex-start}.layout{grid-template-columns:1fr;grid-template-rows:auto 65vh}.sidebar{max-height:48vh}.searchbar{top:66px;width:70%}.search-results{top:116px;width:70%}.maptools{top:12px}.actions button{font-size:11px;padding:7px}}
+</style>
 </head>
-
 <body>
-<div class="app">
-
-  <header class="topbar">
-    <div class="brand">
-      <div class="brand-logo">F</div>
-      <div>
-        <strong>FTTH MANAGER</strong>
-        <small>Gestão de infraestrutura de fibra óptica</small>
-      </div>
-    </div>
-
-    <div class="top-actions">
-      <button id="backupBtn">Backup</button>
-      <button id="exportKmlBtn">Exportar KML</button>
-      <button class="primary" id="importBtn">Importar KML/KMZ</button>
-      <input type="file" id="importFile" accept=".kml,.kmz,.json" hidden>
-    </div>
-  </header>
-
-  <div class="main-layout">
-    <aside class="sidebar">
-
-      <nav class="tabs">
-        <button class="tab active" data-tab="dashboard">Visão geral</button>
-        <button class="tab" data-tab="network">Rede</button>
-        <button class="tab" data-tab="engineering">Engenharia</button>
-        <button class="tab" data-tab="settings">Ajustes</button>
-      </nav>
-
-      <!-- VISÃO GERAL -->
-      <section class="tab-content active" id="tab-dashboard">
-
-        <div class="section-heading">
-          <h2>Resumo da rede</h2>
-          <span class="live-indicator">LOCAL</span>
-        </div>
-
-        <div class="stats-grid">
-          <div class="stat-card">
-            <strong id="statCtos">0</strong>
-            <span>CTOs</span>
-          </div>
-          <div class="stat-card">
-            <strong id="statClients">0</strong>
-            <span>Clientes</span>
-          </div>
-          <div class="stat-card">
-            <strong id="statBoxes">0</strong>
-            <span>Caixas / CEOs</span>
-          </div>
-          <div class="stat-card">
-            <strong id="statCables">0</strong>
-            <span>Cabos</span>
-          </div>
-          <div class="stat-card">
-            <strong id="statFree">0</strong>
-            <span>Portas livres</span>
-          </div>
-          <div class="stat-card">
-            <strong id="statImported">0</strong>
-            <span>Importados</span>
-          </div>
-        </div>
-
-        <div class="section">
-          <h3>Acesso rápido</h3>
-          <div class="quick-actions">
-            <button data-tool="cto">＋ Nova CTO</button>
-            <button data-tool="ceo">＋ Nova CEO</button>
-            <button data-tool="splitter">＋ Splitter</button>
-            <button data-tool="pole">＋ Poste</button>
-            <button data-tool="cable">⌁ Desenhar fibra</button>
-            <button data-tool="client">＋ Novo cliente</button>
-          </div>
-        </div>
-
-        <div class="section">
-          <h3>Elementos importados</h3>
-          <div id="importedList" class="item-list">
-            <div class="empty-state">Nenhum elemento importado.</div>
-          </div>
-        </div>
-
-        <div class="section">
-          <h3>Últimos cadastros</h3>
-          <div id="recentList" class="item-list">
-            <div class="empty-state">Nenhum cadastro realizado.</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- REDE -->
-      <section class="tab-content" id="tab-network">
-        <h2>Minha rede</h2>
-
-        <div class="field">
-          <input type="search" id="networkSearch" placeholder="Pesquisar CTO, cliente, caixa...">
-        </div>
-
-        <div class="section">
-          <h3>CTOs</h3>
-          <div id="ctoList" class="item-list"></div>
-        </div>
-
-        <div class="section">
-          <h3>CEOs e caixas</h3>
-          <div id="boxList" class="item-list"></div>
-        </div>
-
-        <div class="section">
-          <h3>Splitters</h3>
-          <div id="splitterList" class="item-list"></div>
-        </div>
-
-        <div class="section">
-          <h3>Postes</h3>
-          <div id="poleList" class="item-list"></div>
-        </div>
-
-        <div class="section">
-          <h3>Cabos ópticos</h3>
-          <div id="cableList" class="item-list"></div>
-        </div>
-
-        <div class="section">
-          <h3>Clientes</h3>
-          <div id="clientList" class="item-list"></div>
-        </div>
-      </section>
-
-      <!-- ENGENHARIA -->
-      <section class="tab-content" id="tab-engineering">
-        <h2>Engenharia FTTH</h2>
-
-        <div class="engineering-menu">
-          <button data-engineering="cables">
-            <span>⌁</span>
-            <div>
-              <strong>Cabos ópticos</strong>
-              <small>Rotas, cores e fibras</small>
-            </div>
-          </button>
-
-          <button data-engineering="splices">
-            <span>⌘</span>
-            <div>
-              <strong>Fusões</strong>
-              <small>Registro de emendas</small>
-            </div>
-          </button>
-
-          <button data-engineering="splitters">
-            <span>▦</span>
-            <div>
-              <strong>Splitters</strong>
-              <small>Divisões ópticas</small>
-            </div>
-          </button>
-
-          <button data-engineering="reports">
-            <span>▤</span>
-            <div>
-              <strong>Relatórios</strong>
-              <small>Ocupação e capacidade</small>
-            </div>
-          </button>
-        </div>
-
-        <div id="engineeringContent"></div>
-      </section>
-
-      <!-- AJUSTES -->
-      <section class="tab-content" id="tab-settings">
-        <h2>Configurações</h2>
-
-        <div class="section">
-          <h3>Mapa</h3>
-          <p class="description">
-            Satélite Esri e ruas OpenStreetMap.
-            Não precisa de chave de API do Google.
-          </p>
-
-          <label class="check-row">
-            <input type="checkbox" id="showLabels" checked>
-            Mostrar nomes e limites
-          </label>
-        </div>
-
-        <div class="section">
-          <h3>Armazenamento</h3>
-          <p class="description">
-            Os dados ficam salvos neste navegador e dispositivo.
-            Faça backups regularmente.
-          </p>
-
-          <button id="restoreBackupBtn">Restaurar backup JSON</button>
-
-          <button class="danger" id="clearDataBtn">
-            Apagar todos os dados
-          </button>
-        </div>
-
-        <div class="section">
-          <h3>Sobre</h3>
-          <p class="description">
-            FTTH Manager — gerenciamento de infraestrutura
-            de fibra óptica.
-          </p>
-          <small>Versão 2.0</small>
-        </div>
-      </section>
-
-    </aside>
-
-    <!-- MAPA -->
-    <main class="map-area">
-      <div id="map"></div>
-
-      <div class="map-search">
-        <input
-          id="locationSearch"
-          type="search"
-          placeholder="Pesquisar cidade, bairro ou endereço..."
-        >
-        <button id="locationSearchBtn">Pesquisar</button>
-      </div>
-
-      <!-- FERRAMENTAS -->
-      <div class="map-toolbar">
-        <button class="tool-button active" data-tool="select">↖ Selecionar</button>
-        <button class="tool-button" data-tool="cto">CTO</button>
-        <button class="tool-button" data-tool="ceo">CEO</button>
-        <button class="tool-button" data-tool="splitter">Splitter</button>
-        <button class="tool-button" data-tool="pole">Poste</button>
-        <button class="tool-button" data-tool="cable">⌁ Fibra</button>
-      </div>
-
-      <!-- PAINEL DE DESENHO -->
-      <div class="drawing-panel hidden" id="drawingPanel">
-        <div class="drawing-header">
-          <strong>Desenho de fibra óptica</strong>
-          <span id="drawingCounter">0 pontos</span>
-        </div>
-
-        <div class="drawing-field">
-          <label for="cableName">Identificação do cabo</label>
-          <input
-            id="cableName"
-            type="text"
-            placeholder="Ex.: CABO PRINCIPAL 24FO"
-          >
-        </div>
-
-        <div class="drawing-options">
-          <div>
-            <label for="cableColor">Cor</label>
-            <input id="cableColor" type="color" value="#ffca55">
-          </div>
-
-          <div>
-            <label for="cableWidth">Espessura</label>
-            <select id="cableWidth">
-              <option value="2">Fina</option>
-              <option value="4" selected>Normal</option>
-              <option value="6">Grossa</option>
-              <option value="9">Extra grossa</option>
-            </select>
-          </div>
-
-          <div>
-            <label for="cableFibers">Fibras</label>
-            <select id="cableFibers">
-              <option value="2">2 FO</option>
-              <option value="6">6 FO</option>
-              <option value="12">12 FO</option>
-              <option value="24" selected>24 FO</option>
-              <option value="36">36 FO</option>
-              <option value="48">48 FO</option>
-              <option value="72">72 FO</option>
-              <option value="144">144 FO</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="drawing-actions">
-          <button id="undoDrawing">↶ Desfazer</button>
-          <button id="redoDrawing">↷ Refazer</button>
-          <button id="cancelDrawing" class="danger">✕ Cancelar</button>
-          <button id="finishDrawing" class="primary">✓ Finalizar</button>
-        </div>
-
-        <p class="drawing-help">
-          Clique no mapa para adicionar pontos.
-          A linha acompanha o mouse em tempo real.
-          Você pode desfazer, refazer, cancelar ou finalizar.
-        </p>
-      </div>
-
-      <div id="mapHint" class="map-hint"></div>
-
-      <div class="map-legend">
-        <div><span class="legend-cto"></span> CTO</div>
-        <div><span class="legend-ceo"></span> CEO</div>
-        <div><span class="legend-splitter"></span> Splitter</div>
-        <div><span class="legend-pole"></span> Poste</div>
-        <div><span class="legend-client"></span> Cliente</div>
-        <div><span class="legend-cable"></span> Fibra</div>
-      </div>
-    </main>
+  <div class="app">
+<header class="top">
+  <div class="brand">
+    <div class="logo">F</div>
+    <div>FTTH MANAGER<small>Gestão de infraestrutura de fibra óptica</small></div>
   </div>
+  <div class="actions">
+    <button id="backupBtn">Backup JSON</button>
+    <button id="restoreBtn">Restaurar</button>
+    <button id="exportKml">Exportar KML</button>
+    <button class="primary" id="importBtn">Importar KML/KMZ</button>
+    <input id="fileInput" type="file" accept=".kml,.kmz,.json" hidden>
+  </div>
+</header>
+
+<div class="layout">
+<aside class="sidebar">
+  <nav class="tabs">
+    <button class="tab active" data-tab="overview">Visão geral</button>
+    <button class="tab" data-tab="network">Rede</button>
+    <button class="tab" data-tab="engineering">Engenharia</button>
+    <button class="tab" data-tab="settings">Ajustes</button>
+  </nav>
+
+  <section class="panel active" id="overview">
+    <div class="heading"><h2>Resumo da rede</h2><small>LOCAL</small></div>
+    <div class="stats">
+      <div class="stat"><b id="statCtos">0</b><span>CTOs</span></div>
+      <div class="stat"><b id="statClients">0</b><span>Clientes</span></div>
+      <div class="stat"><b id="statBoxes">0</b><span>Caixas / CEOs</span></div>
+      <div class="stat"><b id="statCables">0</b><span>Cabos</span></div>
+      <div class="stat"><b id="statFree">0</b><span>Portas livres</span></div>
+      <div class="stat"><b id="statImported">0</b><span>Importados</span></div>
+    </div>
+
+    <div class="section">
+      <h3>Acesso rápido</h3>
+      <div class="row">
+        <button data-tool="cto">＋ CTO</button>
+        <button data-tool="ceo">＋ CEO</button>
+      </div>
+      <div class="row" style="margin-top:7px">
+        <button data-tool="splitter">＋ Splitter</button>
+        <button data-tool="pole">＋ Poste</button>
+      </div>
+      <button id="newClient" style="width:100%;margin-top:7px">＋ Cadastrar cliente</button>
+      <button data-tool="cable" style="width:100%;margin-top:7px">⌁ Desenhar fibra</button>
+    </div>
+
+    <div class="section">
+      <h3>Últimos cadastros</h3>
+      <div id="recentList" class="list"></div>
+    </div>
+  </section>
+
+  <section class="panel" id="network">
+    <div class="section">
+      <h3>Pesquisar rede</h3>
+      <input id="networkSearch" placeholder="Nome, código ou cliente..." style="width:100%;padding:10px;background:#0b1016;color:white;border:1px solid #34404e;border-radius:8px">
+    </div>
+    <div class="section"><h3>CTOs</h3><div id="ctoList" class="list"></div></div>
+    <div class="section"><h3>Clientes</h3><div id="clientList" class="list"></div></div>
+    <div class="section"><h3>Caixas / CEOs</h3><div id="boxList" class="list"></div></div>
+    <div class="section"><h3>Splitters</h3><div id="splitterList" class="list"></div></div>
+    <div class="section"><h3>Postes</h3><div id="poleList" class="list"></div></div>
+    <div class="section"><h3>Cabos</h3><div id="cableList" class="list"></div></div>
+  </section>
+
+  <section class="panel" id="engineering">
+    <div class="section">
+      <h3>Engenharia de portas</h3>
+      <p class="notice">Abra uma CTO na lista de rede para visualizar a ocupação das portas e cadastrar clientes.</p>
+      <div id="engineeringContent" class="list"></div>
+    </div>
+  </section>
+
+  <section class="panel" id="settings">
+    <div class="section">
+      <h3>Camadas do mapa</h3>
+      <label><input type="checkbox" id="showLabels" checked> Mostrar nomes de cidades e locais</label>
+      <p class="notice">As camadas de referência mostram nomes de locais e vias sobre o satélite.</p>
+    </div>
+    <div class="section">
+      <h3>Armazenamento</h3>
+      <p class="notice">Os dados ficam salvos somente neste navegador e dispositivo. Faça backups regularmente.</p>
+      <button id="backupBtn2">Baixar backup</button>
+      <button class="danger" id="clearData">Apagar todos os dados</button>
+    </div>
+  </section>
+</aside>
+
+<main class="mapwrap">
+  <div id="map"></div>
+  <div class="searchbar">
+    <input id="locationSearch" placeholder="Pesquisar cidade, bairro ou endereço">
+    <button id="searchBtn">Pesquisar</button>
+  </div>
+  <div id="searchResults" class="search-results" hidden></div>
+  <div class="maptools">
+    <button data-tool="select" class="active">↖ Selecionar</button>
+    <button data-tool="cto">CTO</button>
+    <button data-tool="ceo">CEO</button>
+    <button data-tool="splitter">Splitter</button>
+    <button data-tool="pole">Poste</button>
+    <button data-tool="cable">⌁ Fibra</button>
+  </div>
+  <div id="hint" class="hint"></div>
+  <div class="legend">
+    <div><i class="dot" style="background:#20c878"></i>CTO</div>
+    <div><i class="dot" style="background:#f2a900"></i>CEO</div>
+    <div><i class="dot" style="background:#b05cff"></i>Splitter</div>
+    <div><i class="dot" style="background:#8da5bf"></i>Poste</div>
+    <div><i class="dot" style="background:#438cff"></i>Cliente</div>
+    <div><i class="dot" style="background:#ffca55"></i>Fibra</div>
+  </div>
+</main>
+</div>
 </div>
 
-<!-- MODAIS E NOTIFICAÇÕES -->
 <div id="modalRoot"></div>
-<div id="toastContainer"></div>
-
-<!-- BIBLIOTECAS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script>
+"use strict";
 
-<!-- MÓDULOS DO SISTEMA: TODOS NA RAIZ -->
-<script src="storage.js"></script>
-<script src="map.js"></script>
-<script src="drawing.js"></script>
-<script src="search.js"></script>
-<script src="imports.js"></script>
-<script src="equipment.js"></script>
-<script src="cables.js"></script>
-<script src="clients.js"></script>
-<script src="engineering.js"></script>
-<script src="app.js"></script>
+const STORE_KEY="ftth_manager_v1";
+const EMPTY=()=>({
+  ctos:[],clients:[],boxes:[],cables:[],
+  imports:[],splitters:[],poles:[],
+  settings:{showLabels:true}
+});
 
+let data=loadData();
+let map=null;
+let baseLayers={};
+let labelLayers={};
+let equipmentLayer=null;
+let cableLayer=null;
+let importLayer=null;
+let activeTool="select";
+let draftCable=[];
+let draftLine=null;
+let searchMarker=null;
+function loadData(){
+  try{
+    const raw=JSON.parse(localStorage.getItem(STORE_KEY)||"null");
+    if(!raw||typeof raw!=="object")return EMPTY();
+    const d={...EMPTY(),...raw};
+    for(const k of ["ctos","clients","boxes","cables","imports","splitters","poles"]){
+      if(!Array.isArray(d[k]))d[k]=[];
+    }
+    d.settings={...EMPTY().settings,...(d.settings||{})};
+    return d;
+  }catch(e){
+    console.error("Falha lendo dados locais",e);
+    return EMPTY();
+  }
+}
+
+function saveData(){
+  try{
+    localStorage.setItem(STORE_KEY,JSON.stringify(data));
+    renderAll();
+    return true;
+  }catch(e){
+    console.error(e);
+    toast("Não foi possível salvar. O armazenamento pode estar cheio.");
+    return false;
+  }
+}
+
+function uid(p){
+  return p+"-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,7);
+}
+
+function esc(v){
+  return String(v??"").replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
+}
+
+function toast(msg){
+  const el=document.createElement("div");
+  el.className="toast";
+  el.textContent=msg;
+  document.body.append(el);
+  setTimeout(()=>el.remove(),2800);
+}
+
+function download(blob,name){
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download=name;
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+
+function initMap(){
+  map=L.map("map",{zoomControl:true,preferCanvas:true})
+    .setView([-8.991,-36.055],14);
+
+  baseLayers.satellite=L.tileLayer(
+    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    {maxZoom:19,maxNativeZoom:19,attribution:"Imagery © Esri"}
+  );
+
+  baseLayers.streets=L.tileLayer(
+    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    {maxZoom:19,attribution:"© OpenStreetMap contributors"}
+  );
+
+  labelLayers.places=L.tileLayer(
+    "https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+    {maxZoom:19,maxNativeZoom:19,opacity:.95,attribution:"Labels © Esri"}
+  );
+
+  labelLayers.roads=L.tileLayer(
+    "https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}",
+    {maxZoom:19,maxNativeZoom:19,opacity:.95,attribution:"Transportation © Esri"}
+  );
+
+  baseLayers.satellite.addTo(map);
+
+  if(data.settings.showLabels!==false){
+    labelLayers.places.addTo(map);
+    labelLayers.roads.addTo(map);
+  }
+
+  L.control.layers(
+    {"Satélite":baseLayers.satellite,"Ruas":baseLayers.streets},
+    {"Nomes de locais":labelLayers.places,"Ruas e nomes de vias":labelLayers.roads},
+    {collapsed:true}
+  ).addTo(map);
+
+  equipmentLayer=L.layerGroup().addTo(map);
+  cableLayer=L.layerGroup().addTo(map);
+  importLayer=L.layerGroup().addTo(map);
+
+  map.on("click",onMapClick);
+
+  map.on("mousemove",e=>{
+    if(activeTool==="cable"&&draftLine&&draftCable.length){
+      draftLine.setLatLngs([...draftCable,e.latlng]);
+    }
+  });
+
+  renderMap();
+}
+function iconFor(type){
+  const conf={
+    cto:["#20c878","C"],
+    ceo:["#f2a900","E"],
+    splitter:["#b05cff","S"],
+    pole:["#8da5bf","P"],
+    client:["#438cff",""]
+  }[type]||["#fff","?"];
+
+  return L.divIcon({
+    className:"",
+    html:`<div style="width:25px;height:25px;border-radius:${type==="client"?"50%":"7px"};background:${conf[0]};border:2px solid white;box-shadow:0 2px 7px #0009;display:grid;place-items:center;color:#111;font-weight:bold">${conf[1]}</div>`,
+    iconSize:[25,25],
+    iconAnchor:[12,12]
+  });
+}
+
+function allEquipment(){
+  return [
+    ["ctos","cto"],
+    ["boxes","ceo"],
+    ["splitters","splitter"],
+    ["poles","pole"],
+    ["clients","client"]
+  ].flatMap(([key,type])=>
+    data[key].map(x=>({...x,_type:type,_collection:key}))
+  );
+}
+
+function renderMap(){
+  if(!map)return;
+
+  equipmentLayer.clearLayers();
+  cableLayer.clearLayers();
+  importLayer.clearLayers();
+
+  allEquipment().forEach(o=>{
+    if(!Number.isFinite(+o.lat)||!Number.isFinite(+o.lng))return;
+
+    const m=L.marker([+o.lat,+o.lng],{
+      icon:iconFor(o._type)
+    }).bindTooltip(esc(o.name||o.code||o._type));
+
+    m.on("click",()=>{
+      if(activeTool==="select"){
+        openDetails(o._collection,o.id);
+      }
+    });
+
+    equipmentLayer.addLayer(m);
+  });
+
+  data.cables.forEach(c=>{
+    const pts=c.points||c.path||[];
+    if(pts.length>1){
+      cableLayer.addLayer(
+        L.polyline(
+          pts.map(p=>[+p.lat,+p.lng]),
+          {color:c.color||"#ffca55",weight:+c.width||4,opacity:.95}
+        ).bindTooltip(`${esc(c.name)} • ${c.fibers||0} FO`)
+      );
+    }
+  });
+
+  data.imports.forEach(f=>drawImportedFeature(f));
+}
+
+function drawImportedFeature(f){
+  const g=f.geometry;
+  if(!g)return;
+
+  const style={
+    color:f.color||"#4da3ff",
+    weight:3,
+    fillOpacity:.12
+  };
+
+  let layer=null;
+
+  if(g.type==="Point"){
+    const [lng,lat]=g.coordinates;
+
+    layer=L.marker([lat,lng])
+      .bindTooltip(esc(f.name));
+
+    layer.bindPopup(`
+      <b>${esc(f.name)}</b>
+      <p>Transformar este ponto importado em equipamento?</p>
+      <button class="promote-cto">Cadastrar como CTO</button>
+      <button class="promote-ceo">Cadastrar como CEO</button>
+    `);
+
+    layer.on("popupopen",ev=>{
+      const root=ev.popup.getElement();
+
+      root.querySelector(".promote-cto").onclick=()=>{
+        openEquipmentForm("cto",{lat,lng,name:f.name});
+        map.closePopup();
+      };
+
+      root.querySelector(".promote-ceo").onclick=()=>{
+        openEquipmentForm("ceo",{lat,lng,name:f.name});
+        map.closePopup();
+      };
+    });
+
+  }else if(g.type==="LineString"){
+    layer=L.polyline(
+      g.coordinates.map(p=>[p[1],p[0]]),
+      style
+    );
+
+  }else if(g.type==="Polygon"){
+    layer=L.polygon(
+      g.coordinates.map(r=>r.map(p=>[p[1],p[0]])),
+      style
+    );
+  }
+
+  if(layer)importLayer.addLayer(layer);
+}
+function setTool(tool){
+  if(activeTool==="cable"&&tool!=="cable")cancelCable();
+
+  activeTool=tool;
+
+  document.querySelectorAll("[data-tool]").forEach(b=>{
+    b.classList.toggle("active",b.dataset.tool===tool);
+  });
+
+  const hint=document.getElementById("hint");
+
+  if(tool==="cable"){
+    draftCable=[];
+    if(draftLine)cableLayer.removeLayer(draftLine);
+
+    draftLine=L.polyline([],{
+      color:"#ffca55",
+      weight:4,
+      dashArray:"7 6"
+    }).addTo(map);
+
+    hint.style.display="block";
+    showCableFinish();
+
+  }else if(tool==="select"){
+    hint.style.display="none";
+    hideCableFinish();
+
+  }else{
+    hint.textContent="Clique no mapa para posicionar: "+tool.toUpperCase();
+    hint.style.display="block";
+    hideCableFinish();
+  }
+}
+
+function showCableFinish(){
+  const h=document.getElementById("hint");
+
+  h.innerHTML=`
+    Clique para marcar os pontos.
+    <button id="finishCableNow">Finalizar cabo</button>
+    <button id="cancelCableNow">Cancelar</button>
+  `;
+
+  document.getElementById("finishCableNow").onclick=finishCable;
+  document.getElementById("cancelCableNow").onclick=()=>{
+    cancelCable();
+    setTool("select");
+  };
+}
+
+function hideCableFinish(){}
+
+function cancelCable(){
+  if(draftLine&&cableLayer){
+    cableLayer.removeLayer(draftLine);
+  }
+  draftLine=null;
+  draftCable=[];
+}
+
+function onMapClick(e){
+  if(activeTool==="select")return;
+
+  if(activeTool==="cable"){
+    draftCable.push(e.latlng);
+    draftLine.setLatLngs(draftCable);
+    return;
+  }
+
+  openEquipmentForm(activeTool,e.latlng);
+}
+
+function finishCable(){
+  if(draftCable.length<2){
+    toast("Marque pelo menos dois pontos.");
+    return;
+  }
+
+  const name=prompt(
+    "Nome/identificação do cabo:",
+    `CABO-${String(data.cables.length+1).padStart(3,"0")}`
+  );
+
+  if(!name)return;
+
+  const fibers=Number(prompt("Quantidade de fibras (FO):","24")||24);
+  const color=prompt("Cor hexadecimal do cabo:","#ffca55")||"#ffca55";
+
+  data.cables.push({
+    id:uid("CABO"),
+    name,
+    points:draftCable.map(p=>({lat:p.lat,lng:p.lng})),
+    fibers,
+    color,
+    width:4,
+    createdAt:new Date().toISOString()
+  });
+
+  cancelCable();
+  setTool("select");
+  saveData();
+  toast("Cabo salvo com sucesso.");
+}
+
+function openModal(title,body){
+  document.getElementById("modalRoot").innerHTML=`
+    <div class="modalback" id="modalBack">
+      <div class="modal">
+        <div class="modalhead">
+          <h2>${esc(title)}</h2>
+          <button id="closeModal">✕</button>
+        </div>
+        ${body}
+      </div>
+    </div>
+  `;
+
+  document.getElementById("closeModal").onclick=closeModal;
+
+  document.getElementById("modalBack").onclick=e=>{
+    if(e.target.id==="modalBack")closeModal();
+  };
+}
+
+function closeModal(){
+  document.getElementById("modalRoot").innerHTML="";
+}
+function openEquipmentForm(type,pos,existing=null){
+  const config={
+    cto:{collection:"ctos",title:"CTO"},
+    ceo:{collection:"boxes",title:"CEO / Caixa"},
+    splitter:{collection:"splitters",title:"Splitter"},
+    pole:{collection:"poles",title:"Poste"}
+  }[type];
+
+  if(!config)return;
+
+  const obj=existing||{
+    id:uid(type.toUpperCase()),
+    name:`${type.toUpperCase()}-${String(data[config.collection].length+1).padStart(3,"0")}`,
+    lat:+pos.lat,
+    lng:+pos.lng,
+    capacity:16,
+    ratio:"1:8"
+  };
+
+  const body=`
+    <form id="equipmentForm">
+
+      <div class="field">
+        <label>Identificação</label>
+        <input name="name" required value="${esc(obj.name)}">
+      </div>
+
+      ${type==="cto"?`
+        <div class="field">
+          <label>Capacidade de portas</label>
+          <select name="capacity">
+            ${[4,8,16,24,32].map(n=>
+              `<option value="${n}" ${+obj.capacity===n?"selected":""}>${n} portas</option>`
+            ).join("")}
+          </select>
+        </div>
+      `:""}
+
+      ${type==="splitter"?`
+        <div class="field">
+          <label>Divisão</label>
+          <select name="ratio">
+            ${["1:2","1:4","1:8","1:16","1:32","1:64"].map(n=>
+              `<option ${obj.ratio===n?"selected":""}>${n}</option>`
+            ).join("")}
+          </select>
+        </div>
+      `:""}
+
+      <div class="field">
+        <label>Código / observação</label>
+        <input name="notes" value="${esc(obj.notes||"")}">
+      </div>
+
+      <div class="field">
+        <label>Coordenadas</label>
+        <input value="${(+obj.lat).toFixed(6)}, ${(+obj.lng).toFixed(6)}" disabled>
+      </div>
+
+      <div class="row">
+        <button type="button" id="cancelForm">Cancelar</button>
+        <button class="primary">Salvar</button>
+      </div>
+
+    </form>
+  `;
+
+  openModal(
+    existing?"Editar "+config.title:"Cadastrar "+config.title,
+    body
+  );
+
+  document.getElementById("cancelForm").onclick=closeModal;
+
+  document.getElementById("equipmentForm").onsubmit=e=>{
+    e.preventDefault();
+
+    const fd=new FormData(e.target);
+
+    obj.name=fd.get("name").trim();
+    obj.notes=fd.get("notes");
+    if(type==="cto")obj.capacity=+fd.get("capacity");
+    if(type==="splitter")obj.ratio=fd.get("ratio");
+
+    obj.lat=+obj.lat;
+    obj.lng=+obj.lng;
+
+    if(existing){
+      data[config.collection]=data[config.collection].map(
+        x=>x.id===obj.id?obj:x
+      );
+    }else{
+      data[config.collection].push(obj);
+    }
+
+    saveData();
+    renderMap();
+    closeModal();
+    toast(config.title+" salvo.");
+  };
+}
+  function openClientForm(existing=null,ctoId="",port=""){
+  const c=existing||{
+    id:uid("CLI"),
+    name:"",
+    phone:"",
+    address:"",
+    plan:"",
+    status:"Ativo",
+    ctoId,
+    port,
+    lat:"",
+    lng:""
+  };
+
+  const options=data.ctos.map(x=>
+    `<option value="${x.id}" ${c.ctoId===x.id?"selected":""}>${esc(x.name)}</option>`
+  ).join("");
+
+  openModal(
+    existing?"Editar cliente":"Cadastrar cliente",
+    `
+    <form id="clientForm">
+
+      <div class="field">
+        <label>Nome</label>
+        <input name="name" required value="${esc(c.name)}">
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>Telefone</label>
+          <input name="phone" value="${esc(c.phone)}">
+        </div>
+        <div class="field">
+          <label>Plano</label>
+          <input name="plan" value="${esc(c.plan)}">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Endereço</label>
+        <input name="address" value="${esc(c.address)}">
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>CTO</label>
+          <select name="ctoId">
+            <option value="">Sem vínculo</option>
+            ${options}
+          </select>
+        </div>
+        <div class="field">
+          <label>Porta</label>
+          <input name="port" type="number" min="1" value="${esc(c.port)}">
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>Latitude</label>
+          <input name="lat" type="number" step="any" value="${esc(c.lat)}">
+        </div>
+        <div class="field">
+          <label>Longitude</label>
+          <input name="lng" type="number" step="any" value="${esc(c.lng)}">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Status</label>
+        <select name="status">
+          <option ${c.status==="Ativo"?"selected":""}>Ativo</option>
+          <option ${c.status==="Suspenso"?"selected":""}>Suspenso</option>
+          <option ${c.status==="Cancelado"?"selected":""}>Cancelado</option>
+        </select>
+      </div>
+
+      <div class="row">
+        <button type="button" id="cancelClient">Cancelar</button>
+        <button class="primary">Salvar cliente</button>
+      </div>
+
+    </form>
+    `
+  );
+
+  document.getElementById("cancelClient").onclick=closeModal;
+
+  document.getElementById("clientForm").onsubmit=e=>{
+    e.preventDefault();
+
+    const fd=new FormData(e.target);
+    Object.assign(c,Object.fromEntries(fd.entries()));
+
+    c.lat=c.lat===""?"":+c.lat;
+    c.lng=c.lng===""?"":+c.lng;
+    c.port=c.port===""?"":+c.port;
+
+    if(c.ctoId&&c.port){
+      const occupied=data.clients.some(x=>
+        x.id!==c.id&&x.ctoId===c.ctoId&&+x.port===+c.port
+      );
+
+      if(occupied){
+        toast("Essa porta já está ocupada.");
+        return;
+      }
+    }
+
+    if(existing){
+      data.clients=data.clients.map(x=>x.id===c.id?c:x);
+    }else{
+      data.clients.push(c);
+    }
+
+    saveData();
+    renderMap();
+    closeModal();
+    toast("Cliente salvo.");
+  };
+}
+  function openDetails(collection,id){
+  const obj=data[collection]?.find(x=>x.id===id);
+  if(!obj)return;
+
+  if(collection==="ctos"){
+    const clients=data.clients.filter(c=>c.ctoId===id);
+    const cap=+obj.capacity||16;
+
+    const ports=Array.from({length:cap},(_,i)=>{
+      const n=i+1;
+      const cl=clients.find(c=>+c.port===n);
+
+      return `
+        <div class="port ${cl?"used":""}">
+          <b>Porta ${n}</b><br>
+          ${cl?esc(cl.name):"Livre"}
+        </div>
+      `;
+    }).join("");
+
+    openModal(
+      obj.name,
+      `
+        <p>${clients.length} de ${cap} portas ocupadas</p>
+        <div class="ports">${ports}</div>
+        <div class="row">
+          <button id="addCtoClient">＋ Cliente</button>
+          <button id="editObj">Editar</button>
+          <button class="danger" id="deleteObj">Excluir</button>
+        </div>
+      `
+    );
+
+    document.getElementById("addCtoClient").onclick=()=>{
+      closeModal();
+      openClientForm(null,id);
+    };
+
+    document.getElementById("editObj").onclick=()=>{
+      openEquipmentForm("cto",obj,obj);
+    };
+
+    document.getElementById("deleteObj").onclick=()=>{
+      deleteRecord(collection,id);
+    };
+
+    return;
+  }
+
+  openModal(
+    obj.name,
+    `
+      <p>${esc(obj.notes||obj.type||obj.ratio||"")}</p>
+      <div class="row">
+        <button id="editObj">Editar</button>
+        <button class="danger" id="deleteObj">Excluir</button>
+      </div>
+    `
+  );
+
+  document.getElementById("editObj").onclick=()=>{
+    openEquipmentForm(
+      collection==="boxes"?"ceo":
+      collection==="splitters"?"splitter":"pole",
+      obj,obj
+    );
+  };
+
+  document.getElementById("deleteObj").onclick=()=>{
+    deleteRecord(collection,id);
+  };
+}
+
+function deleteRecord(collection,id){
+  if(!confirm("Excluir este registro?"))return;
+
+  data[collection]=data[collection].filter(x=>x.id!==id);
+
+  if(collection==="ctos"){
+    data.clients.forEach(c=>{
+      if(c.ctoId===id){
+        c.ctoId="";
+        c.port="";
+      }
+    });
+  }
+
+  saveData();
+  renderMap();
+  closeModal();
+}
+  function renderList(id,items,collection){
+  const el=document.getElementById(id);
+  if(!el)return;
+
+  const q=(document.getElementById("networkSearch")?.value||"").toLowerCase();
+
+  const filtered=items.filter(x=>
+    (x.name||"").toLowerCase().includes(q)
+  );
+
+  el.innerHTML=filtered.length
+    ?filtered.map(x=>`
+      <div class="item">
+        <div>
+          <strong>${esc(x.name||"Sem nome")}</strong>
+          <small>${
+            collection==="ctos"
+              ?`${data.clients.filter(c=>c.ctoId===x.id).length}/${x.capacity||16} portas ocupadas`
+              :esc(x.notes||x.ratio||x.type||"")
+          }</small>
+        </div>
+        <button data-open="${collection}" data-id="${x.id}">Abrir</button>
+      </div>
+    `).join("")
+    :'<div class="empty">Nenhum registro.</div>';
+
+  el.querySelectorAll("[data-open]").forEach(b=>{
+    b.onclick=()=>openDetails(b.dataset.open,b.dataset.id);
+  });
+}
+
+function renderAll(){
+  const total=data.ctos.reduce(
+    (s,c)=>s+(+c.capacity||16),0
+  );
+
+  const used=data.clients.filter(c=>c.ctoId).length;
+
+  document.getElementById("statCtos").textContent=data.ctos.length;
+  document.getElementById("statClients").textContent=data.clients.length;
+  document.getElementById("statBoxes").textContent=data.boxes.length;
+  document.getElementById("statCables").textContent=data.cables.length;
+  document.getElementById("statFree").textContent=Math.max(0,total-used);
+  document.getElementById("statImported").textContent=data.imports.length;
+
+  renderList("ctoList",data.ctos,"ctos");
+  renderList("clientList",data.clients,"clients");
+  renderList("boxList",data.boxes,"boxes");
+  renderList("splitterList",data.splitters,"splitters");
+  renderList("poleList",data.poles,"poles");
+  renderList("cableList",data.cables,"cables");
+
+  const rec=[
+    ...data.ctos,
+    ...data.boxes,
+    ...data.clients,
+    ...data.cables
+  ].slice(-8).reverse();
+
+  document.getElementById("recentList").innerHTML=rec.length
+    ?rec.map(x=>`
+      <div class="item">
+        <strong>${esc(x.name)}</strong>
+        <small>${esc(x.id)}</small>
+      </div>
+    `).join("")
+    :'<div class="empty">Nenhum cadastro realizado.</div>';
+
+  document.getElementById("engineeringContent").innerHTML=data.ctos.length
+    ?data.ctos.map(c=>`
+      <div class="item">
+        <strong>${esc(c.name)}</strong>
+        <small>${data.clients.filter(x=>x.ctoId===c.id).length}/${c.capacity||16} ocupadas</small>
+        <button data-eng="${c.id}">Portas</button>
+      </div>
+    `).join("")
+    :'<div class="empty">Cadastre uma CTO para gerenciar as portas.</div>';
+
+  document.querySelectorAll("[data-eng]").forEach(b=>{
+    b.onclick=()=>openDetails("ctos",b.dataset.eng);
+  });
+}
+  function parseKml(xmlText){
+  const xml=new DOMParser().parseFromString(
+    xmlText,"application/xml"
+  );
+
+  if(xml.querySelector("parsererror")){
+    throw Error("KML inválido.");
+  }
+
+  const out=[];
+
+  const tag=(el,n)=>
+    Array.from(el.children).find(x=>x.localName===n);
+
+  const txt=(el,n)=>
+    tag(el,n)?.textContent.trim()||"";
+
+  const coords=el=>
+    (el?.textContent||"")
+      .trim()
+      .split(/\s+/)
+      .map(v=>v.split(",").map(Number))
+      .filter(a=>a.length>=2&&a.every(Number.isFinite))
+      .map(a=>a.slice(0,2));
+
+  function walk(el,folder=""){
+    for(const child of el.children){
+
+      if(child.localName==="Folder"||child.localName==="Document"){
+        walk(child,txt(child,"name")||folder);
+
+      }else if(child.localName==="Placemark"){
+
+        const name=txt(child,"name")||"Elemento importado";
+        const geoms=[];
+
+        function geom(g){
+
+          if(g.localName==="Point"){
+            const p=coords(tag(g,"coordinates"))[0];
+            if(p)geoms.push({type:"Point",coordinates:p});
+
+          }else if(g.localName==="LineString"){
+            const p=coords(tag(g,"coordinates"));
+            if(p.length>1){
+              geoms.push({type:"LineString",coordinates:p});
+            }
+
+          }else if(g.localName==="Polygon"){
+            const rings=Array.from(
+              g.getElementsByTagNameNS("*","LinearRing")
+            )
+            .map(r=>coords(tag(r,"coordinates")))
+            .filter(r=>r.length>2);
+
+            if(rings.length){
+              geoms.push({type:"Polygon",coordinates:rings});
+            }
+
+          }else if(g.localName==="MultiGeometry"){
+            Array.from(g.children).forEach(geom);
+          }
+        }
+
+        Array.from(child.children)
+          .filter(x=>[
+            "Point","LineString","Polygon","MultiGeometry"
+          ].includes(x.localName))
+          .forEach(geom);
+
+        geoms.forEach((g,i)=>{
+          out.push({
+            id:uid("IMP"),
+            name:geoms.length>1?`${name} (${i+1})`:name,
+            folder,
+            geometry:g
+          });
+        });
+      }
+    }
+  }
+
+  walk(xml.documentElement);
+  return out;
+}
+
+async function importSelected(file){
+  try{
+    let txt;
+
+    if(file.name.toLowerCase().endsWith(".kmz")){
+      if(!window.JSZip){
+        throw Error("Biblioteca KMZ não carregou.");
+      }
+
+      const z=await JSZip.loadAsync(file);
+
+      const names=Object.keys(z.files).filter(n=>
+        n.toLowerCase().endsWith(".kml")&&!z.files[n].dir
+      );
+
+      if(!names.length){
+        throw Error("Nenhum KML encontrado dentro do KMZ.");
+      }
+
+      const selected=
+        names.find(n=>n.toLowerCase()==="doc.kml")||names[0];
+
+      txt=await z.files[selected].async("text");
+
+    }else{
+      txt=await file.text();
+    }
+
+    const found=parseKml(txt);
+
+    if(!found.length){
+      throw Error("Nenhum ponto, linha ou polígono encontrado.");
+    }
+
+    data.imports.push(...found);
+
+    saveData();
+    renderMap();
+
+    const pts=[];
+
+    found.forEach(f=>{
+      const g=f.geometry;
+
+      if(g.type==="Point"){
+        pts.push([g.coordinates[1],g.coordinates[0]]);
+
+      }else if(g.type==="LineString"){
+        g.coordinates.forEach(p=>pts.push([p[1],p[0]]));
+
+      }else if(g.type==="Polygon"){
+        g.coordinates.flat().forEach(p=>pts.push([p[1],p[0]]));
+      }
+    });
+
+    if(pts.length){
+      map.fitBounds(
+        L.latLngBounds(pts),
+        {padding:[25,25],maxZoom:18}
+      );
+    }
+
+    toast(`${found.length} elementos importados.`);
+
+  }catch(e){
+    console.error(e);
+    alert("Erro na importação: "+e.message);
+  }
+}
+  function exportKmlFile(){
+  const p=[];
+
+  function point(o){
+    if(Number.isFinite(+o.lat)&&Number.isFinite(+o.lng)){
+      p.push(`
+        <Placemark>
+          <name>${esc(o.name)}</name>
+          <Point>
+            <coordinates>${+o.lng},${+o.lat},0</coordinates>
+          </Point>
+        </Placemark>
+      `);
+    }
+  }
+
+  [
+    ...data.ctos,
+    ...data.boxes,
+    ...data.splitters,
+    ...data.poles,
+    ...data.clients
+  ].forEach(point);
+
+  data.cables.forEach(c=>{
+    p.push(`
+      <Placemark>
+        <name>${esc(c.name)}</name>
+        <LineString>
+          <tessellate>1</tessellate>
+          <coordinates>
+            ${(c.points||c.path||[])
+              .map(x=>`${x.lng},${x.lat},0`).join(" ")}
+          </coordinates>
+        </LineString>
+      </Placemark>
+    `);
+  });
+
+  const k=`
+    <?xml version="1.0" encoding="UTF-8"?>
+    <kml xmlns="http://www.opengis.net/kml/2.2">
+      <Document>
+        <name>FTTH Manager</name>
+        ${p.join("")}
+      </Document>
+    </kml>
+  `;
+
+  download(
+    new Blob([k],{type:"application/vnd.google-earth.kml+xml"}),
+    "rede-ftth.kml"
+  );
+}
+
+async function searchPlace(){
+  const q=document.getElementById("locationSearch").value.trim();
+
+  if(!q)return;
+
+  const box=document.getElementById("searchResults");
+
+  box.hidden=false;
+  box.innerHTML='<div class="item">Pesquisando…</div>';
+
+  try{
+    const url=
+      "https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=br&limit=7&q="+
+      encodeURIComponent(q);
+
+    const res=await fetch(url,{
+      headers:{"Accept-Language":"pt-BR"}
+    });
+
+    if(!res.ok)throw Error("Busca indisponível");
+
+    const results=await res.json();
+
+    box.innerHTML="";
+
+    if(!results.length){
+      box.innerHTML='<div class="item">Nenhum resultado encontrado.</div>';
+      return;
+    }
+
+    results.forEach(r=>{
+      const b=document.createElement("button");
+      b.textContent=r.display_name;
+
+      b.onclick=()=>{
+        const lat=+r.lat;
+        const lon=+r.lon;
+
+        if(searchMarker)map.removeLayer(searchMarker);
+
+        searchMarker=L.marker([lat,lon])
+          .addTo(map)
+          .bindPopup(esc(r.display_name))
+          .openPopup();
+
+        if(r.boundingbox){
+          map.fitBounds([
+            [+r.boundingbox[0],+r.boundingbox[2]],
+            [+r.boundingbox[1],+r.boundingbox[3]]
+          ],{maxZoom:16});
+        }else{
+          map.flyTo([lat,lon],16);
+        }
+
+        box.hidden=true;
+      };
+
+      box.append(b);
+    });
+
+  }catch(e){
+    box.innerHTML=
+      '<div class="item">Falha na pesquisa. Verifique sua conexão.</div>';
+  }
+}
+  function bindUI(){
+
+  document.querySelectorAll("[data-tab]").forEach(b=>{
+    b.onclick=()=>{
+      document.querySelectorAll("[data-tab]").forEach(x=>{
+        x.classList.toggle("active",x===b);
+      });
+
+      document.querySelectorAll(".panel").forEach(p=>{
+        p.classList.toggle("active",p.id===b.dataset.tab);
+      });
+
+      setTimeout(()=>map.invalidateSize(),100);
+    };
+  });
+
+  document.querySelectorAll("[data-tool]").forEach(b=>{
+    b.onclick=()=>setTool(b.dataset.tool);
+  });
+
+  document.getElementById("newClient").onclick=()=>{
+    openClientForm();
+  };
+
+  document.getElementById("networkSearch").oninput=renderAll;
+
+  document.getElementById("showLabels").checked=
+    data.settings.showLabels!==false;
+
+  document.getElementById("showLabels").onchange=e=>{
+    data.settings.showLabels=e.target.checked;
+
+    [...Object.values(labelLayers)].forEach(l=>
+      e.target.checked?l.addTo(map):map.removeLayer(l)
+    );
+
+    saveData();
+  };
+
+  document.getElementById("searchBtn").onclick=searchPlace;
+
+  document.getElementById("locationSearch")
+    .addEventListener("keydown",e=>{
+      if(e.key==="Enter")searchPlace();
+    });
+
+  document.getElementById("backupBtn").onclick=
+  document.getElementById("backupBtn2").onclick=()=>{
+    download(
+      new Blob([JSON.stringify(data,null,2)],{
+        type:"application/json"
+      }),
+      "backup-ftth.json"
+    );
+  };
+
+  document.getElementById("restoreBtn").onclick=()=>{
+    const i=document.getElementById("fileInput");
+    i.accept=".json";
+    i.click();
+  };
+
+  document.getElementById("importBtn").onclick=()=>{
+    const i=document.getElementById("fileInput");
+    i.accept=".kml,.kmz";
+    i.click();
+  };
+
+  document.getElementById("fileInput").onchange=async e=>{
+    const f=e.target.files[0];
+    if(!f)return;
+
+    if(f.name.toLowerCase().endsWith(".json")){
+      try{
+        const parsed=JSON.parse(await f.text());
+
+        if(!confirm("Restaurar backup? Isso substituirá os dados atuais.")){
+          return;
+        }
+
+        data={
+          ...EMPTY(),
+          ...parsed,
+          settings:{
+            ...EMPTY().settings,
+            ...(parsed.settings||{})
+          }
+        };
+
+        saveData();
+        renderMap();
+        toast("Backup restaurado.");
+
+      }catch(err){
+        alert("Backup inválido: "+err.message);
+      }
+
+    }else{
+      await importSelected(f);
+    }
+
+    e.target.value="";
+    e.target.accept=".kml,.kmz,.json";
+  };
+
+  document.getElementById("exportKml").onclick=exportKmlFile;
+
+  document.getElementById("clearData").onclick=()=>{
+    if(confirm("Apagar todos os dados deste navegador? Faça backup antes.")){
+      data=EMPTY();
+      saveData();
+      renderMap();
+      toast("Dados apagados.");
+    }
+  };
+}
+
+function start(){
+  bindUI();
+  initMap();
+  renderAll();
+}
+
+if(document.readyState==="loading"){
+  document.addEventListener("DOMContentLoaded",start);
+}else{
+  start();
+}
+
+</script>
 </body>
 </html>

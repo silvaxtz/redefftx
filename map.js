@@ -1,9 +1,10 @@
 
 "use strict";
 
-/* =========================================
+/* =========================================================
    FTTH MANAGER — MAP.JS
-========================================= */
+   Módulo completo de mapas e visualização da rede
+   ========================================================= */
 
 let map = null;
 
@@ -17,16 +18,14 @@ let importLayer = null;
 let drawingLayer = null;
 
 let activeMapType = "satellite";
-
 let mapInitialized = false;
-
-/* =========================================
-   CONFIGURAÇÃO DOS MAPAS
-========================================= */
 
 const MAP_DEFAULT_CENTER = [-8.991, -36.055];
 const MAP_DEFAULT_ZOOM = 14;
 
+/* =========================================================
+   CAMADAS DO MAPA
+   ========================================================= */
 
 const MAP_LAYERS = {
     satellite: {
@@ -54,691 +53,755 @@ const MAP_LAYERS = {
     }
 };
 
-
-/* =========================================
+/* =========================================================
    INICIALIZAR MAPA
-========================================= */
+   ========================================================= */
 
 function initMap() {
-  if (mapInitialized && map) {
-    map.invalidateSize();
-    return map;
-  }
-
-  const mapElement = document.getElementById("map");
-
-  if (!mapElement) {
-    console.error("Elemento #map não encontrado.");
-    return null;
-  }
-
-  if (typeof L === "undefined") {
-    console.error("Leaflet não foi carregado.");
-    return null;
-  }
-
-  map = L.map("map", {
-    zoomControl: true,
-    attributionControl: true,
-    preferCanvas: true,
-    doubleClickZoom: true
-  }).setView(MAP_DEFAULT_CENTER, MAP_DEFAULT_ZOOM);
-
-  satelliteLayer = L.tileLayer(
-    MAP_LAYERS.satellite.url,
-    {
-      attribution: MAP_LAYERS.satellite.attribution,
-      maxZoom: 19,
-      maxNativeZoom: 19
-    }
-  );
-
-  streetLayer = L.tileLayer(
-    MAP_LAYERS.streets.url,
-    {
-      attribution: MAP_LAYERS.streets.attribution,
-      maxZoom: 19
-    }
-  );
-
-  labelLayer = L.tileLayer(
-    MAP_LAYERS.labels.url,
-    {
-      attribution: MAP_LAYERS.labels.attribution,
-      maxZoom: 19,
-      opacity: 0.9
-    }
-  );
-
-  satelliteLayer.addTo(map);
-
-  equipmentLayer = L.layerGroup().addTo(map);
-  cableLayer = L.layerGroup().addTo(map);
-  importLayer = L.layerGroup().addTo(map);
-  drawingLayer = L.layerGroup().addTo(map);
-
-  L.control.layers(
-    {
-      "Satélite": satelliteLayer,
-      "Ruas": streetLayer
-    },
-    {
-      "Nomes e limites": labelLayer
-    },
-    {
-      position: "topright",
-      collapsed: true
-    }
-  ).addTo(map);
-
-  map.on("baselayerchange", event => {
-    activeMapType =
-      event.name === "Ruas" ? "streets" : "satellite";
-  });
-
-  mapInitialized = true;
-
-  applyMapPreferences();
-
-  console.log("Mapa FTTH inicializado.");
-
-  return map;
-}
-
-/* =========================================
-   PREFERÊNCIAS DO MAPA
-========================================= */
-
-function applyMapPreferences() {
-  if (!map) return;
-
-  if (data?.settings?.showLabels) {
-    if (!map.hasLayer(labelLayer)) {
-      labelLayer.addTo(map);
-    }
-  } else {
-    if (map.hasLayer(labelLayer)) {
-      map.removeLayer(labelLayer);
-    }
-  }
-
-  if (data?.settings?.mapType === "streets") {
-    setMapType("streets");
-  } else {
-    setMapType("satellite");
-  }
-}
-
-function setMapType(type) {
-  if (!map) return;
-
-  if (type === "streets") {
-    if (map.hasLayer(satelliteLayer)) {
-      map.removeLayer(satelliteLayer);
+    if (mapInitialized && map) {
+        map.invalidateSize();
+        return map;
     }
 
-    streetLayer.addTo(map);
-    activeMapType = "streets";
+    const mapElement = document.getElementById("map");
 
-  } else {
-    if (map.hasLayer(streetLayer)) {
-      map.removeLayer(streetLayer);
+    if (!mapElement) {
+        console.error("Elemento #map não encontrado.");
+        return null;
     }
+
+    if (typeof L === "undefined") {
+        console.error("Leaflet não foi carregado.");
+        return null;
+    }
+
+    map = L.map("map", {
+        zoomControl: true,
+        attributionControl: true,
+        preferCanvas: true,
+        doubleClickZoom: true
+    }).setView(MAP_DEFAULT_CENTER, MAP_DEFAULT_ZOOM);
+
+    /* SATÉLITE */
+
+    satelliteLayer = L.tileLayer(
+        MAP_LAYERS.satellite.url,
+        {
+            attribution: MAP_LAYERS.satellite.attribution,
+            maxZoom: 19,
+            maxNativeZoom: 19
+        }
+    );
+
+    /* RUAS */
+
+    streetLayer = L.tileLayer(
+        MAP_LAYERS.streets.url,
+        {
+            attribution: MAP_LAYERS.streets.attribution,
+            maxZoom: 19
+        }
+    );
+
+    /* NOMES DE CIDADES E LIMITES */
+
+    const placeLabelsLayer = L.tileLayer(
+        MAP_LAYERS.places.url,
+        {
+            attribution: MAP_LAYERS.places.attribution,
+            maxZoom: 19,
+            maxNativeZoom: 19,
+            opacity: 1,
+            pane: "overlayPane"
+        }
+    );
+
+    /* NOMES DE RUAS */
+
+    const roadLabelsLayer = L.tileLayer(
+        MAP_LAYERS.roads.url,
+        {
+            attribution: MAP_LAYERS.roads.attribution,
+            maxZoom: 19,
+            maxNativeZoom: 19,
+            opacity: 1,
+            pane: "overlayPane"
+        }
+    );
+
+    /* AGRUPAMENTO DOS RÓTULOS */
+
+    labelLayer = L.layerGroup([
+        placeLabelsLayer,
+        roadLabelsLayer
+    ]);
+
+    /* CAMADA PADRÃO */
 
     satelliteLayer.addTo(map);
-    activeMapType = "satellite";
-  }
 
-  if (data?.settings) {
-    data.settings.mapType = activeMapType;
-    saveData();
-  }
+    /* CAMADAS DA REDE */
+
+    equipmentLayer = L.layerGroup().addTo(map);
+    cableLayer = L.layerGroup().addTo(map);
+    importLayer = L.layerGroup().addTo(map);
+    drawingLayer = L.layerGroup().addTo(map);
+
+    /* CONTROLE DE CAMADAS */
+
+    L.control.layers(
+        {
+            "Satélite": satelliteLayer,
+            "Ruas": streetLayer
+        },
+        {
+            "Cidades, limites e ruas": labelLayer
+        },
+        {
+            position: "topright",
+            collapsed: true
+        }
+    ).addTo(map);
+
+    /* IDENTIFICAR TIPO DE MAPA */
+
+    map.on("baselayerchange", event => {
+        activeMapType =
+            event.name === "Ruas" ? "streets" : "satellite";
+
+        if (data?.settings) {
+            data.settings.mapType = activeMapType;
+            saveData();
+        }
+    });
+
+    mapInitialized = true;
+
+    applyMapPreferences();
+
+    console.log("Mapa FTTH inicializado.");
+
+    return map;
 }
 
-/* =========================================
-   CAMADAS
-========================================= */
+/* =========================================================
+   PREFERÊNCIAS DO MAPA
+   ========================================================= */
+
+function applyMapPreferences() {
+    if (!map) return;
+
+    // Os nomes ficam ativados por padrão.
+    const showLabels = data?.settings?.showLabels !== false;
+
+    if (showLabels) {
+        if (!map.hasLayer(labelLayer)) {
+            labelLayer.addTo(map);
+        }
+    } else {
+        if (map.hasLayer(labelLayer)) {
+            map.removeLayer(labelLayer);
+        }
+    }
+
+    if (data?.settings?.mapType === "streets") {
+        setMapType("streets");
+    } else {
+        setMapType("satellite");
+    }
+}
+
+/* =========================================================
+   ALTERAR TIPO DE MAPA
+   ========================================================= */
+
+function setMapType(type) {
+    if (!map) return;
+
+    if (type === "streets") {
+        if (map.hasLayer(satelliteLayer)) {
+            map.removeLayer(satelliteLayer);
+        }
+
+        if (!map.hasLayer(streetLayer)) {
+            streetLayer.addTo(map);
+        }
+
+        activeMapType = "streets";
+
+    } else {
+        if (map.hasLayer(streetLayer)) {
+            map.removeLayer(streetLayer);
+        }
+
+        if (!map.hasLayer(satelliteLayer)) {
+            satelliteLayer.addTo(map);
+        }
+
+        activeMapType = "satellite";
+    }
+
+    if (data?.settings) {
+        data.settings.mapType = activeMapType;
+        saveData();
+    }
+}
+
+/* =========================================================
+   LIMPAR CAMADAS
+   ========================================================= */
 
 function clearMapLayers() {
-  if (!map) return;
+    if (!map) return;
 
-  equipmentLayer?.clearLayers();
-  cableLayer?.clearLayers();
-  importLayer?.clearLayers();
+    equipmentLayer?.clearLayers();
+    cableLayer?.clearLayers();
+    importLayer?.clearLayers();
 }
 
 function clearDrawingLayer() {
-  if (drawingLayer) {
-    drawingLayer.clearLayers();
-  }
+    if (drawingLayer) {
+        drawingLayer.clearLayers();
+    }
 }
 
-/* =========================================
+/* =========================================================
    ÍCONES FTTH
-========================================= */
+   ========================================================= */
 
 function createEquipmentIcon(type, label = "") {
-  const config = {
-    cto: {
-      color: "#16a34a",
-      symbol: "C",
-      shape: "cto"
-    },
+    const config = {
+        cto: {
+            color: "#16a34a",
+            symbol: "C",
+            shape: "cto"
+        },
 
-    ceo: {
-      color: "#eab308",
-      symbol: "E",
-      shape: "ceo"
-    },
+        ceo: {
+            color: "#eab308",
+            symbol: "E",
+            shape: "ceo"
+        },
 
-    box: {
-      color: "#eab308",
-      symbol: "E",
-      shape: "ceo"
-    },
+        box: {
+            color: "#eab308",
+            symbol: "E",
+            shape: "ceo"
+        },
 
-    splitter: {
-      color: "#9333ea",
-      symbol: "S",
-      shape: "splitter"
-    },
+        splitter: {
+            color: "#9333ea",
+            symbol: "S",
+            shape: "splitter"
+        },
 
-    pole: {
-      color: "#64748b",
-      symbol: "P",
-      shape: "pole"
-    },
+        pole: {
+            color: "#64748b",
+            symbol: "P",
+            shape: "pole"
+        },
 
-    client: {
-      color: "#2563eb",
-      symbol: "●",
-      shape: "client"
-    }
-  };
+        client: {
+            color: "#2563eb",
+            symbol: "●",
+            shape: "client"
+        }
+    };
 
-  const item = config[type] || config.box;
+    const item = config[type] || config.box;
 
-  return L.divIcon({
-    className: "",
-    html: `
-      <div class="ftth-marker ${item.shape}">
-        <div class="ftth-marker-inner">
-          <span>${item.symbol}</span>
-        </div>
-      </div>
-    `,
-    iconSize: [34, 34],
-    iconAnchor: [17, 17],
-    popupAnchor: [0, -17]
-  });
+    return L.divIcon({
+        className: "",
+        html: `
+            <div class="ftth-marker ${item.shape}">
+                <div class="ftth-marker-inner">
+                    <span>${item.symbol}</span>
+                </div>
+                ${label ? `<small>${escapeHTML(label)}</small>` : ""}
+            </div>
+        `,
+        iconSize: [34, 34],
+        iconAnchor: [17, 17],
+        popupAnchor: [0, -17]
+    });
 }
 
-/* =========================================
-   ADICIONAR MARCADOR
-========================================= */
+/* =========================================================
+   ADICIONAR MARCADOR DE EQUIPAMENTO
+   ========================================================= */
 
 function addEquipmentMarker(item, type) {
-  if (!map || !equipmentLayer) return;
+    if (!map || !equipmentLayer || !item) return;
 
-  if (
-    !Number.isFinite(Number(item.lat)) ||
-    !Number.isFinite(Number(item.lng))
-  ) {
-    return;
-  }
-
-  const marker = L.marker(
-    [Number(item.lat), Number(item.lng)],
-    {
-      icon: createEquipmentIcon(type),
-      draggable: false,
-      riseOnHover: true,
-      title: item.name || type
+    if (
+        !Number.isFinite(Number(item.lat)) ||
+        !Number.isFinite(Number(item.lng))
+    ) {
+        return;
     }
-  );
 
-  marker.bindPopup(() => createEquipmentPopup(item, type));
+    const marker = L.marker(
+        [Number(item.lat), Number(item.lng)],
+        {
+            icon: createEquipmentIcon(type),
+            draggable: false,
+            riseOnHover: true,
+            title: item.name || type
+        }
+    );
 
-  equipmentLayer.addLayer(marker);
+    marker.bindPopup(() => createEquipmentPopup(item, type));
 
-  return marker;
+    equipmentLayer.addLayer(marker);
+
+    return marker;
 }
 
-/* =========================================
+/* =========================================================
    POPUP DOS EQUIPAMENTOS
-========================================= */
+   ========================================================= */
 
 function createEquipmentPopup(item, type) {
-  const name = escapeHTML(item.name || "Sem identificação");
+    const name = escapeHTML(item.name || "Sem identificação");
 
-  const typeNames = {
-    cto: "CTO",
-    ceo: "CEO / Caixa",
-    box: "Caixa",
-    splitter: "Splitter",
-    pole: "Poste",
-    client: "Cliente"
-  };
+    const typeNames = {
+        cto: "CTO",
+        ceo: "CEO / Caixa",
+        box: "Caixa",
+        splitter: "Splitter",
+        pole: "Poste",
+        client: "Cliente"
+    };
 
-  return `
-    <div class="equipment-popup">
-      <strong>${name}</strong>
-      <p>${typeNames[type] || "Equipamento"}</p>
+    return `
+        <div class="equipment-popup">
+            <strong>${name}</strong>
+            <p>${typeNames[type] || "Equipamento"}</p>
 
-      ${item.region
-        ? `<p>Região: ${escapeHTML(item.region)}</p>`
-        : ""}
+            ${item.region
+                ? `<p>Região: ${escapeHTML(item.region)}</p>`
+                : ""}
 
-      ${item.capacity
-        ? `<p>Capacidade: ${Number(item.capacity)} portas</p>`
-        : ""}
+            ${item.capacity
+                ? `<p>Capacidade: ${Number(item.capacity)} portas</p>`
+                : ""}
 
-      <button
-        type="button"
-        onclick="openEquipmentDetails('${escapeHTML(item.id)}','${type}')"
-      >
-        Abrir detalhes
-      </button>
-    </div>
-  `;
+            <button
+                type="button"
+                onclick="openEquipmentDetails('${escapeHTML(item.id)}','${type}')"
+            >
+                Abrir detalhes
+            </button>
+        </div>
+    `;
 }
 
-/* =========================================
+/* =========================================================
    EXIBIR EQUIPAMENTOS
-========================================= */
+   ========================================================= */
 
 function renderEquipmentMap() {
-  if (!map || !equipmentLayer) return;
+    if (!map || !equipmentLayer) return;
 
-  equipmentLayer.clearLayers();
+    equipmentLayer.clearLayers();
 
-  (data.ctos || []).forEach(item => {
-    addEquipmentMarker(item, "cto");
-  });
+    (data.ctos || []).forEach(item => {
+        addEquipmentMarker(item, "cto");
+    });
 
-  (data.boxes || []).forEach(item => {
-    addEquipmentMarker(item, item.type === "ceo" ? "ceo" : "box");
-  });
+    (data.boxes || []).forEach(item => {
+        addEquipmentMarker(
+            item,
+            item.type === "ceo" ? "ceo" : "box"
+        );
+    });
 
-  (data.splitters || []).forEach(item => {
-    addEquipmentMarker(item, "splitter");
-  });
+    (data.splitters || []).forEach(item => {
+        addEquipmentMarker(item, "splitter");
+    });
 
-  (data.poles || []).forEach(item => {
-    addEquipmentMarker(item, "pole");
-  });
+    (data.poles || []).forEach(item => {
+        addEquipmentMarker(item, "pole");
+    });
 
-  (data.clients || []).forEach(item => {
-    addEquipmentMarker(item, "client");
-  });
+    (data.clients || []).forEach(item => {
+        addEquipmentMarker(item, "client");
+    });
 }
 
-/* =========================================
+/* =========================================================
    DESENHAR CABOS SALVOS
-========================================= */
+   ========================================================= */
 
 function renderCableMap() {
-  if (!map || !cableLayer) return;
+    if (!map || !cableLayer) return;
 
-  cableLayer.clearLayers();
+    cableLayer.clearLayers();
 
-  (data.cables || []).forEach(cable => {
-    if (!Array.isArray(cable.points) || cable.points.length < 2) {
-      return;
-    }
+    (data.cables || []).forEach(cable => {
+        if (!Array.isArray(cable.points) || cable.points.length < 2) {
+            return;
+        }
 
-    const points = cable.points
-      .filter(p =>
-        Number.isFinite(Number(p.lat)) &&
-        Number.isFinite(Number(p.lng))
-      )
-      .map(p => [
-        Number(p.lat),
-        Number(p.lng)
-      ]);
+        const points = cable.points
+            .filter(point =>
+                Number.isFinite(Number(point.lat)) &&
+                Number.isFinite(Number(point.lng))
+            )
+            .map(point => [
+                Number(point.lat),
+                Number(point.lng)
+            ]);
 
-    if (points.length < 2) return;
+        if (points.length < 2) return;
 
-    const line = L.polyline(points, {
-      color: cable.color || "#ffca55",
-      weight: Number(cable.width) || 4,
-      opacity: 0.95,
-      lineCap: "round",
-      lineJoin: "round",
-      className: "fiber-line"
+        const line = L.polyline(points, {
+            color: cable.color || "#ffca55",
+            weight: Number(cable.width) || 4,
+            opacity: 0.95,
+            lineCap: "round",
+            lineJoin: "round",
+            className: "fiber-line"
+        });
+
+        line.bindPopup(`
+            <div class="equipment-popup">
+                <strong>${escapeHTML(cable.name || "Cabo óptico")}</strong>
+                <p>${Number(cable.fibers || 0)} fibras ópticas</p>
+                <p>Comprimento: ${formatCableLength(points)} m</p>
+                <button
+                    type="button"
+                    onclick="openCableDetails('${escapeHTML(cable.id)}')"
+                >
+                    Ver cabo
+                </button>
+            </div>
+        `);
+
+        cableLayer.addLayer(line);
     });
-
-    line.bindPopup(`
-      <div class="equipment-popup">
-        <strong>${escapeHTML(cable.name || "Cabo óptico")}</strong>
-        <p>${Number(cable.fibers || 0)} fibras ópticas</p>
-        <p>Comprimento: ${formatCableLength(points)} m</p>
-        <button
-          type="button"
-          onclick="openCableDetails('${escapeHTML(cable.id)}')"
-        >
-          Ver cabo
-        </button>
-      </div>
-    `);
-
-    cableLayer.addLayer(line);
-  });
 }
 
-/* =========================================
+/* =========================================================
    DESENHAR ELEMENTOS IMPORTADOS
-========================================= */
+   ========================================================= */
 
 function renderImportedMap() {
-  if (!map || !importLayer) return;
+    if (!map || !importLayer) return;
 
-  importLayer.clearLayers();
+    importLayer.clearLayers();
 
-  (data.imports || []).forEach(item => {
-    if (!item.geometry) return;
+    (data.imports || []).forEach(item => {
+        if (!item.geometry) return;
 
-    drawImportedGeometry(item, importLayer);
-  });
+        drawImportedGeometry(item, importLayer);
+    });
 }
 
-/* =========================================
+/* =========================================================
    DESENHAR GEOMETRIA IMPORTADA
-========================================= */
+   ========================================================= */
 
 function drawImportedGeometry(item, targetLayer) {
-  const geometry = item.geometry;
+    const geometry = item.geometry;
 
-  const color = item.color || "#3388ff";
+    if (!geometry) return;
 
-  function convertCoordinates(coords) {
-    return (coords || [])
-      .map(point => [
-        Number(point.lat ?? point[1]),
-        Number(point.lng ?? point[0])
-      ])
-      .filter(point =>
-        Number.isFinite(point[0]) &&
-        Number.isFinite(point[1])
-      );
-  }
+    const color = item.color || "#3388ff";
 
-  function addPoint(point) {
-    const lat = Number(point.lat ?? point[1]);
-    const lng = Number(point.lng ?? point[0]);
-
-    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-      return;
+    function convertCoordinates(coords) {
+        return (coords || [])
+            .map(point => [
+                Number(point.lat ?? point[1]),
+                Number(point.lng ?? point[0])
+            ])
+            .filter(point =>
+                Number.isFinite(point[0]) &&
+                Number.isFinite(point[1])
+            );
     }
 
-    const marker = L.circleMarker([lat, lng], {
-      radius: 6,
-      color: "#ffffff",
-      weight: 2,
-      fillColor: color,
-      fillOpacity: 1
-    });
+    function addPoint(point) {
+        const lat = Number(point.lat ?? point[1]);
+        const lng = Number(point.lng ?? point[0]);
 
-    marker.bindPopup(`
-      <strong>${escapeHTML(item.name || "Elemento importado")}</strong>
-      <p>Origem: Google Earth / KML</p>
-      <button
-        type="button"
-        onclick="promoteImported('${escapeHTML(item.id)}')"
-      >
-        Cadastrar como CTO
-      </button>
-      <button
-        type="button"
-        onclick="promoteImportedBox('${escapeHTML(item.id)}')"
-      >
-        Cadastrar como caixa
-      </button>
-    `);
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+            return;
+        }
 
-    targetLayer.addLayer(marker);
-  }
+        const marker = L.circleMarker([lat, lng], {
+            radius: 6,
+            color: "#ffffff",
+            weight: 2,
+            fillColor: color,
+            fillOpacity: 1
+        });
 
-  if (geometry.type === "Point") {
-    const point = geometry.coordinates?.[0];
+        marker.bindPopup(`
+            <strong>${escapeHTML(item.name || "Elemento importado")}</strong>
+            <p>Origem: Google Earth / KML</p>
 
-    if (point) addPoint(point);
-    return;
-  }
+            <button
+                type="button"
+                onclick="promoteImported('${escapeHTML(item.id)}')"
+            >
+                Cadastrar como CTO
+            </button>
 
-  if (geometry.type === "LineString") {
-    const points = convertCoordinates(geometry.coordinates);
+            <button
+                type="button"
+                onclick="promoteImportedBox('${escapeHTML(item.id)}')"
+            >
+                Cadastrar como caixa
+            </button>
+        `);
 
-    if (points.length >= 2) {
-      targetLayer.addLayer(L.polyline(points, {
-        color,
-        weight: 3,
-        opacity: .9
-      }));
+        targetLayer.addLayer(marker);
     }
 
-    return;
-  }
+    if (geometry.type === "Point") {
+        const point = geometry.coordinates?.[0];
 
-  if (geometry.type === "MultiLineString") {
-    (geometry.coordinates || []).forEach(line => {
-      const points = convertCoordinates(line);
-
-      if (points.length >= 2) {
-        targetLayer.addLayer(L.polyline(points, {
-          color,
-          weight: 3,
-          opacity: .9
-        }));
-      }
-    });
-
-    return;
-  }
-
-  if (geometry.type === "Polygon") {
-    const rings = (geometry.coordinates || [])
-      .map(convertCoordinates)
-      .filter(ring => ring.length >= 3);
-
-    if (rings.length) {
-      targetLayer.addLayer(L.polygon(rings, {
-        color,
-        weight: 2,
-        fillColor: color,
-        fillOpacity: .15
-      }));
+        if (point) addPoint(point);
+        return;
     }
 
-    return;
-  }
+    if (geometry.type === "LineString") {
+        const points = convertCoordinates(geometry.coordinates);
 
-  if (geometry.type === "MultiPolygon") {
-    (geometry.coordinates || []).forEach(polygon => {
-      const rings = polygon
-        .map(convertCoordinates)
-        .filter(ring => ring.length >= 3);
+        if (points.length >= 2) {
+            targetLayer.addLayer(L.polyline(points, {
+                color,
+                weight: 3,
+                opacity: 0.9
+            }));
+        }
 
-      if (rings.length) {
-        targetLayer.addLayer(L.polygon(rings, {
-          color,
-          weight: 2,
-          fillColor: color,
-          fillOpacity: .15
-        }));
-      }
-    });
+        return;
+    }
 
-    return;
-  }
+    if (geometry.type === "MultiLineString") {
+        (geometry.coordinates || []).forEach(line => {
+            const points = convertCoordinates(line);
 
-  if (geometry.type === "GeometryCollection") {
-    (geometry.geometries || []).forEach(child => {
-      drawImportedGeometry({
-        ...item,
-        geometry: child
-      }, targetLayer);
-    });
-  }
+            if (points.length >= 2) {
+                targetLayer.addLayer(L.polyline(points, {
+                    color,
+                    weight: 3,
+                    opacity: 0.9
+                }));
+            }
+        });
+
+        return;
+    }
+
+    if (geometry.type === "Polygon") {
+        const rings = (geometry.coordinates || [])
+            .map(convertCoordinates)
+            .filter(ring => ring.length >= 3);
+
+        if (rings.length) {
+            targetLayer.addLayer(L.polygon(rings, {
+                color,
+                weight: 2,
+                fillColor: color,
+                fillOpacity: 0.15
+            }));
+        }
+
+        return;
+    }
+
+    if (geometry.type === "MultiPolygon") {
+        (geometry.coordinates || []).forEach(polygon => {
+            const rings = polygon
+                .map(convertCoordinates)
+                .filter(ring => ring.length >= 3);
+
+            if (rings.length) {
+                targetLayer.addLayer(L.polygon(rings, {
+                    color,
+                    weight: 2,
+                    fillColor: color,
+                    fillOpacity: 0.15
+                }));
+            }
+        });
+
+        return;
+    }
+
+    if (geometry.type === "GeometryCollection") {
+        (geometry.geometries || []).forEach(child => {
+            drawImportedGeometry({
+                ...item,
+                geometry: child
+            }, targetLayer);
+        });
+    }
 }
 
-/* =========================================
+/* =========================================================
    ATUALIZAR MAPA COMPLETO
-========================================= */
+   ========================================================= */
 
 function renderMap() {
-  if (!map) return;
+    if (!map) return;
 
-  renderEquipmentMap();
-  renderCableMap();
-  renderImportedMap();
+    renderEquipmentMap();
+    renderCableMap();
+    renderImportedMap();
 
-  map.invalidateSize();
+    map.invalidateSize();
 }
 
-/* =========================================
+/* =========================================================
    CENTRALIZAR NO EQUIPAMENTO
-========================================= */
+   ========================================================= */
 
 function centerOnEquipment(item, zoom = 18) {
-  if (!map || !item) return;
+    if (!map || !item) return;
 
-  const lat = Number(item.lat);
-  const lng = Number(item.lng);
+    const lat = Number(item.lat);
+    const lng = Number(item.lng);
 
-  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-    return;
-  }
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        return;
+    }
 
-  map.flyTo([lat, lng], zoom, {
-    animate: true,
-    duration: 0.8
-  });
+    map.flyTo([lat, lng], zoom, {
+        animate: true,
+        duration: 0.8
+    });
 }
 
-/* =========================================
+/* =========================================================
    CENTRALIZAR NA REDE
-========================================= */
+   ========================================================= */
 
 function fitNetwork() {
-  if (!map) return;
+    if (!map) return;
 
-  const points = [];
+    const points = [];
 
-  const groups = [
-    data.ctos,
-    data.boxes,
-    data.splitters,
-    data.poles,
-    data.clients
-  ];
+    const groups = [
+        data.ctos,
+        data.boxes,
+        data.splitters,
+        data.poles,
+        data.clients
+    ];
 
-  groups.forEach(group => {
-    (group || []).forEach(item => {
-      const lat = Number(item.lat);
-      const lng = Number(item.lng);
+    groups.forEach(group => {
+        (group || []).forEach(item => {
+            const lat = Number(item.lat);
+            const lng = Number(item.lng);
 
-      if (
-        Number.isFinite(lat) &&
-        Number.isFinite(lng)
-      ) {
-        points.push([lat, lng]);
-      }
+            if (
+                Number.isFinite(lat) &&
+                Number.isFinite(lng)
+            ) {
+                points.push([lat, lng]);
+            }
+        });
     });
-  });
 
-  if (!points.length) {
-    map.setView(MAP_DEFAULT_CENTER, MAP_DEFAULT_ZOOM);
-    return;
-  }
+    if (!points.length) {
+        map.setView(MAP_DEFAULT_CENTER, MAP_DEFAULT_ZOOM);
+        return;
+    }
 
-  if (points.length === 1) {
-    map.setView(points[0], 18);
-    return;
-  }
+    if (points.length === 1) {
+        map.setView(points[0], 18);
+        return;
+    }
 
-  map.fitBounds(L.latLngBounds(points), {
-    padding: [50, 50],
-    maxZoom: 18
-  });
+    map.fitBounds(L.latLngBounds(points), {
+        padding: [50, 50],
+        maxZoom: 18
+    });
 }
 
-/* =========================================
+/* =========================================================
    DISTÂNCIA DOS CABOS
-========================================= */
+   ========================================================= */
 
 function formatCableLength(points) {
-  if (!Array.isArray(points) || points.length < 2) {
-    return "0";
-  }
+    if (!Array.isArray(points) || points.length < 2) {
+        return "0";
+    }
 
-  let total = 0;
+    let total = 0;
 
-  for (let i = 1; i < points.length; i++) {
-    const a = L.latLng(points[i - 1][0], points[i - 1][1]);
-    const b = L.latLng(points[i][0], points[i][1]);
+    for (let i = 1; i < points.length; i++) {
+        const a = L.latLng(points[i - 1][0], points[i - 1][1]);
+        const b = L.latLng(points[i][0], points[i][1]);
 
-    total += a.distanceTo(b);
-  }
+        total += a.distanceTo(b);
+    }
 
-  return total.toFixed(1);
+    return total.toFixed(1);
 }
 
-/* =========================================
+/* =========================================================
    UTILITÁRIO HTML
-========================================= */
+   ========================================================= */
 
 function escapeHTML(value) {
-  return String(value ?? "").replace(/[&<>"']/g, character => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
-  })[character]);
+    return String(value ?? "").replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[character]);
 }
 
-/* =========================================
-   UTILITÁRIO DE POSIÇÃO
-========================================= */
+/* =========================================================
+   UTILITÁRIOS DE POSIÇÃO
+   ========================================================= */
 
 function getMapCenter() {
-  if (!map) return null;
+    if (!map) return null;
 
-  const center = map.getCenter();
+    const center = map.getCenter();
 
-  return {
-    lat: center.lat,
-    lng: center.lng
-  };
+    return {
+        lat: center.lat,
+        lng: center.lng
+    };
 }
 
 function getMapZoom() {
-  return map ? map.getZoom() : MAP_DEFAULT_ZOOM;
+    return map ? map.getZoom() : MAP_DEFAULT_ZOOM;
 }
 
-/* =========================================
+/* =========================================================
    EVENTOS DO MAPA
-========================================= */
+   ========================================================= */
 
 function setupMapEvents() {
-  if (!map) return;
+    if (!map) return;
 
-  map.on("click", event => {
-    if (typeof handleMapClick === "function") {
-      handleMapClick(event);
-    }
-  });
+    if (map._ftthEventsInitialized) return;
+    map._ftthEventsInitialized = true;
 
-  map.on("mousemove", event => {
-    if (typeof handleDrawingMouseMove === "function") {
-      handleDrawingMouseMove(event);
-    }
-  });
+    map.on("click", event => {
+        if (typeof handleMapClick === "function") {
+            handleMapClick(event);
+        }
+    });
 
-  map.on("zoomend", () => {
-    if (typeof updateMapZoom === "function") {
-      updateMapZoom(map.getZoom());
-    }
-  });
+    map.on("mousemove", event => {
+        if (typeof handleDrawingMouseMove === "function") {
+            handleDrawingMouseMove(event);
+        }
+    });
+
+    map.on("zoomend", () => {
+        if (typeof updateMapZoom === "function") {
+            updateMapZoom(map.getZoom());
+        }
+    });
 }

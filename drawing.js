@@ -1,3 +1,4 @@
+
 /* =========================================================
    FTTH MANAGER — DESENHO DE CABOS
    Arquivo: drawing.js
@@ -91,7 +92,8 @@ function setDrawingMode(mode) {
     const mapElement = drawingElement("map");
 
     if (mapElement) {
-        mapElement.style.cursor = mode === "select" ? "" : "crosshair";
+        mapElement.style.cursor =
+            mode === "select" ? "" : "crosshair";
     }
 
     updateDrawingInterface();
@@ -142,9 +144,10 @@ function activateCableDrawing() {
 
 /* ---------------------------------------------------------
    CLIQUES NO MAPA
+   FUNÇÃO CHAMADA PELO app.js
 --------------------------------------------------------- */
 
-function handleMapClick(event) {
+function handleDrawingMapPoint(event) {
     if (!drawingActive || drawingMode !== "cable") {
         return;
     }
@@ -160,8 +163,8 @@ function handleMapClick(event) {
 
     drawingPoints.push(point);
 
-    // Ao adicionar um novo ponto, a pilha de refazer é limpa.
     drawingRedoStack = [];
+    drawingMousePosition = null;
 
     addDrawingMarker(point);
     updateDrawingPreview();
@@ -194,9 +197,7 @@ function handleDrawingMouseMove(event) {
 --------------------------------------------------------- */
 
 function addDrawingMarker(point) {
-    if (!drawingLayer) {
-        return;
-    }
+    if (!drawingLayer) return;
 
     const marker = L.circleMarker(
         [point.lat, point.lng],
@@ -233,8 +234,6 @@ function updateDrawingPreview() {
         point.lng
     ]);
 
-    // O cursor é acrescentado à linha para mostrar
-    // o caminho antes de confirmar o próximo ponto.
     if (drawingMousePosition && drawingPoints.length > 0) {
         pointsToDraw.push([
             drawingMousePosition.lat,
@@ -251,7 +250,7 @@ function updateDrawingPreview() {
         {
             color: getCableColor(),
             weight: getCableWidth(),
-            opacity: 0.85,
+            opacity: 0.9,
             dashArray: "8, 7",
             lineCap: "round",
             lineJoin: "round"
@@ -304,7 +303,7 @@ function updateDrawingStyle() {
 }
 
 /* ---------------------------------------------------------
-   DESFAZER
+   DESFAZER PONTO
 --------------------------------------------------------- */
 
 function undoDrawingPoint() {
@@ -327,7 +326,7 @@ function undoDrawingPoint() {
 }
 
 /* ---------------------------------------------------------
-   REFAZER
+   REFAZER PONTO
 --------------------------------------------------------- */
 
 function redoDrawingPoint() {
@@ -401,9 +400,7 @@ function cancelCableDrawing(showMessage = true) {
 --------------------------------------------------------- */
 
 function finishCableDrawing() {
-    if (!drawingActive) {
-        return;
-    }
+    if (!drawingActive) return;
 
     if (drawingPoints.length < 2) {
         drawingToast(
@@ -548,7 +545,7 @@ function updateDrawingInterface() {
 }
 
 /* ---------------------------------------------------------
-   FINALIZAÇÃO DE SEGURANÇA
+   CONSULTAR PONTOS DO DESENHO
 --------------------------------------------------------- */
 
 function getDrawingPoints() {

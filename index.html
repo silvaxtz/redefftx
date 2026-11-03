@@ -79,8 +79,71 @@ function showClient(cid){let c=data.clients.find(x=>x.id===cid);if(!c)return;let
 function deleteItem(collection,itemId){if(!confirm('Confirma a exclusão?'))return;data[collection]=data[collection].filter(x=>x.id!==itemId);if(collection==='ctos')data.clients.forEach(c=>{if(c.ctoId===itemId){c.ctoId='';c.port=''}});save();closeModal();renderMap()}
 function renderAll(){let occupied=data.clients.filter(c=>c.ctoId).length,total=data.ctos.reduce((a,c)=>a+(+c.capacity||0),0);document.getElementById('statCto').textContent=data.ctos.length;document.getElementById('statClients').textContent=data.clients.length;document.getElementById('statFree').textContent=Math.max(0,total-occupied);document.getElementById('statBoxes').textContent=data.boxes.length;let recent=[...data.ctos.map(x=>({...x,t:'CTO'})),...data.boxes.map(x=>({...x,t:'Caixa'})),...data.clients.map(x=>({...x,t:'Cliente'}))].slice(-6).reverse();document.getElementById('recentList').innerHTML=recent.length?recent.map(x=>`<div class="item"><div><strong>${esc(x.name)}</strong><small>${x.t}</small></div><span class="pill gray">${x.t}</span></div>`).join(''):'<div class="empty">Nenhum elemento cadastrado.</div>';renderLists()}
 function renderLists(){const q=(document.getElementById('search')?.value||'').toLowerCase();let ctos=data.ctos.filter(x=>x.name.toLowerCase().includes(q));document.getElementById('ctoList').innerHTML=ctos.length?ctos.map(x=>`<div class="item"><div><strong>${esc(x.name)}</strong><small>${x.capacity} portas • ${data.clients.filter(c=>c.ctoId===x.id).length} ocupadas</small></div><button onclick="showCto('${x.id}')">Abrir</button></div>`).join(''):'<div class="empty">Nenhuma CTO encontrada.</div>';let cls=data.clients.filter(x=>x.name.toLowerCase().includes(q)||String(x.phone).includes(q));document.getElementById('clientList').innerHTML=cls.length?cls.map(x=>`<div class="item"><div><strong>${esc(x.name)}</strong><small>${esc(x.plan||'Sem plano')} • ${esc(x.status)}</small></div><button onclick="showClient('${x.id}')">Abrir</button></div>`).join(''):'<div class="empty">Nenhum cliente encontrado.</div>';let bs=data.boxes.filter(x=>x.name.toLowerCase().includes(q));document.getElementById('boxList').innerHTML=bs.length?bs.map(x=>`<div class="item"><div><strong>${esc(x.name)}</strong><small>${esc(x.type||'Caixa')}</small></div><button onclick="showBox('${x.id}')">Abrir</button></div>`).join(''):'<div class="empty">Nenhuma caixa cadastrada.</div>'}
-function parseKml(txt){let xml=new DOMParser().parseFromString(txt,'text/xml');if(xml.querySelector('parsererror'))throw Error('Arquivo KML inválido');let out=[];xml.querySelectorAll('Placemark').forEach(pm=>{let name=pm.querySelector('name')?.textContent||'Elemento importado';let point=pm.querySelector('Point coordinates'),line=pm.querySelector('LineString coordinates'),poly=pm.querySelector('Polygon outerBoundaryIs LinearRing coordinates');let coord=el=>el.textContent.trim().split(/\s+/).map(s=>s.split(',').slice(0,2).map(Number)).filter(a=>a.length===2&&Number.isFinite(a[0])&&Number.isFinite(a[1]));if(point){let a=coord(point)[0];if(a)out.push({name,geometry:{type:'Point',coordinates:a}})}else if(line){let a=coord(line);if(a.length>1)out.push({name,geometry:{type:'LineString',coordinates:a}})}else if(poly){let a=coord(poly);if(a.length>2)out.push({name,geometry:{type:'Polygon',coordinates:[a]}})}});return out}
-async function importFile(file){try{let txt;if(file.name.toLowerCase().endsWith('.kmz')){let zip=await JSZip.loadAsync(file);let k=Object.keys(zip.files).find(x=>x.toLowerCase().endsWith('.kml'));if(!k)throw Error('Não encontrei KML dentro do KMZ');txt=await zip.files[k].async('text')}else txt=await file.text();let features=parseKml(txt);data.imports.push(...features);save();if(mapReady){renderMap();let pts=features.filter(f=>f.geometry.type==='Point').map(f=>({lat:f.geometry.coordinates[1],lng:f.geometry.coordinates[0]}));if(pts.length)map.setCenter(pts[0])}toast(`${features.length} elementos importados.`)}catch(e){alert('Erro ao importar: '+e.message)}}
+function parseKml(txt){
+ const xml=new DOMParser().parseFromString(txt,'application/xml');
+ if(xml.querySelector('parsererror'))throw Error('O KML está malformado ou incompleto.');
+ const local=(el,n)=>Array.from(el.children).find(x=>x.localName===n);
+ const descendants=(el,n)=>Array.from(el.getElementsByTagNameNS('*',n));
+ const text=(el,n)=>{let x=local(el,n);return x?.textContent?.trim()||''};
+ const parseCoords=el=>(el?.textContent||'').trim().split(/\s+/).map(s=>s.split(',').map(Number)).filter(a=>a.length>=2&&Number.isFinite(a[0])&&Number.isFinite(a[1])).map(a=>a.slice(0,2));
+ const features=[];
+ function walk(container,folderPath=[]){
+  for(const child of Array.from(container.children)){
+   if(child.localName==='Folder'||child.localName==='Document'){
+    let nm=text(child,'name');walk(child,nm?[...folderPath,nm]:folderPath);
+   }else if(child.localName==='Placemark'){
+    const name=text(child,'name')||'Elemento sem nome';
+    const description=text(child,'description');
+    const styleUrl=text(child,'styleUrl');
+    let color='';
+    const lineStyle=descendants(child,'LineStyle')[0];
+    if(lineStyle){let k=text(lineStyle,'color');if(k.length===8){let aa=k.slice(0,2),bb=k.slice(2,4),gg=k.slice(4,6),rr=k.slice(6,8);color='#'+rr+gg+bb}}
+    const geoms=[];
+    function parseGeom(g){
+     if(g.localName==='Point'){let a=parseCoords(local(g,'coordinates'))[0];if(a)geoms.push({type:'Point',coordinates:a})}
+     else if(g.localName==='LineString'){let a=parseCoords(local(g,'coordinates'));if(a.length>1)geoms.push({type:'LineString',coordinates:a})}
+     else if(g.localName==='Polygon'){
+      let rings=descendants(g,'LinearRing').map(r=>parseCoords(local(r,'coordinates'))).filter(a=>a.length>2);
+      if(rings.length)geoms.push({type:'Polygon',coordinates:rings})
+     }else if(g.localName==='MultiGeometry'||g.localName==='MultiTrack'){Array.from(g.children).forEach(parseGeom)}
+     else if(g.localName==='Track'){
+      let coords=descendants(g,'coord').map(c=>c.textContent.trim().split(/\s+/).map(Number)).filter(a=>a.length>=2&&a.every(Number.isFinite)).map(a=>[a[0],a[1]]);
+      if(coords.length>1)geoms.push({type:'LineString',coordinates:coords})
+     }
+    }
+    Array.from(child.children).filter(x=>['Point','LineString','Polygon','MultiGeometry','MultiTrack','Track'].includes(x.localName)).forEach(parseGeom);
+    geoms.forEach((geometry,i)=>features.push({name:geoms.length>1?`${name} (${i+1})`:name,description,folder:folderPath.join(' / '),styleUrl,color,geometry}));
+   }
+  }
+ }
+ walk(xml.documentElement,[]);
+ return features;
+}
+async function importFile(file){
+ try{
+  let txt;
+  if(file.name.toLowerCase().endsWith('.kmz')){
+   if(!window.JSZip)throw Error('Biblioteca de leitura KMZ não carregou. Verifique a internet e recarregue a página.');
+   const zip=await JSZip.loadAsync(file);
+   const candidates=Object.keys(zip.files).filter(x=>x.toLowerCase().endsWith('.kml')&&!zip.files[x].dir);
+   if(!candidates.length)throw Error('Não encontrei nenhum arquivo KML dentro deste KMZ.');
+   const chosen=candidates.includes('doc.kml')?'doc.kml':candidates[0];
+   txt=await zip.files[chosen].async('text');
+  }else txt=await file.text();
+  const features=parseKml(txt);
+  if(!features.length)throw Error('O arquivo foi aberto, mas não encontrei pontos, linhas ou polígonos reconhecidos.');
+  data.imports.push(...features);save();
+  if(mapReady){
+   renderMap();
+   const bounds=[];
+   features.forEach(f=>{let g=f.geometry;if(g.type==='Point')bounds.push([g.coordinates[1],g.coordinates[0]]);else if(g.type==='LineString')g.coordinates.forEach(a=>bounds.push([a[1],a[0]]));else if(g.type==='Polygon')g.coordinates.flat().forEach(a=>bounds.push([a[1],a[0]]))});
+   if(bounds.length)map.fitBounds(L.latLngBounds(bounds),{padding:[30,30],maxZoom:18});
+  }
+  const folders=[...new Set(features.map(f=>f.folder).filter(Boolean))];
+  toast(`${features.length} elementos importados${folders.length?' • '+folders.length+' pastas':''}.`);
+  alert(`Importação concluída!\\n\\n${features.length} elementos encontrados:\\n• ${features.filter(f=>f.geometry.type==='Point').length} pontos\\n• ${features.filter(f=>f.geometry.type==='LineString').length} linhas\\n• ${features.filter(f=>f.geometry.type==='Polygon').length} polígonos\\n• ${folders.length} pastas`);
+ }catch(e){console.error(e);alert('Falha ao importar o projeto: '+e.message)}
+}
 function exportKml(){let placemarks=[];const pm=(name,coord,kind)=>`<Placemark><name>${esc(name)}</name><${kind}><coordinates>${coord}</coordinates></${kind}></Placemark>`;data.ctos.forEach(c=>placemarks.push(pm(c.name,`${c.lng},${c.lat},0`,'Point')));data.boxes.forEach(b=>placemarks.push(pm(b.name,`${b.lng},${b.lat},0`,'Point')));data.clients.forEach(c=>{if(c.lat&&c.lng)placemarks.push(pm(c.name,`${c.lng},${c.lat},0`,'Point'))});data.cables.forEach(c=>placemarks.push(pm(c.name,c.path.map(p=>`${p.lng},${p.lat},0`).join(' '),'LineString')));data.imports.forEach(f=>{let g=f.geometry;if(g.type==='Point')placemarks.push(pm(f.name,g.coordinates.join(',')+',0','Point'));else if(g.type==='LineString')placemarks.push(pm(f.name,g.coordinates.map(a=>a.join(',')+',0').join(' '),'LineString'))});let k=`<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>Projeto FTTH</name>${placemarks.join('')}</Document></kml>`;download(new Blob([k],{type:'application/vnd.google-earth.kml+xml'}),'projeto-ftth.kml')}
 function download(blob,name){let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href)}
 document.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));document.getElementById('finishCable').onclick=finishCable;document.getElementById('importBtn').onclick=()=>document.getElementById('fileInput').click();document.getElementById('fileInput').onchange=e=>{if(e.target.files[0])importFile(e.target.files[0]);e.target.value=''};document.getElementById('exportBtn').onclick=exportKml;document.getElementById('addClientBtn').onclick=()=>openClientForm();document.getElementById('search').oninput=renderLists;document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));['overview','network','settings'].forEach(t=>document.getElementById(t).classList.toggle('hidden',t!==b.dataset.tab))});document.getElementById('backupBtn').onclick=()=>download(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),'backup-ftth.json');document.getElementById('clearBtn').onclick=()=>{if(confirm('Tem certeza? Todos os clientes, CTOs, cabos e importações serão apagados deste navegador.')){data={ctos:[],clients:[],boxes:[],cables:[],imports:[]};save();renderMap();toast('Dados apagados.')}};document.querySelectorAll('[data-mode]').forEach(()=>{});renderAll();initMap();

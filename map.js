@@ -27,25 +27,33 @@ let mapInitialized = false;
 const MAP_DEFAULT_CENTER = [-8.991, -36.055];
 const MAP_DEFAULT_ZOOM = 14;
 
+
 const MAP_LAYERS = {
-  satellite: {
-    name: "Satélite",
-    url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-    attribution: "Tiles © Esri"
-  },
+    satellite: {
+        name: "Satélite",
+        url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        attribution: "Tiles © Esri"
+    },
 
-  streets: {
-    name: "Ruas",
-    url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    attribution: "&copy; OpenStreetMap contributors"
-  },
+    streets: {
+        name: "Ruas",
+        url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        attribution: "&copy; OpenStreetMap contributors"
+    },
 
-  labels: {
-    name: "Nomes e limites",
-    url: "https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
-    attribution: "Labels © Esri"
-  }
+    places: {
+        name: "Cidades e limites",
+        url: "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",
+        attribution: "Labels © Esri"
+    },
+
+    roads: {
+        name: "Nomes de ruas",
+        url: "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}",
+        attribution: "Transportation labels © Esri"
+    }
 };
+
 
 /* =========================================
    INICIALIZAR MAPA

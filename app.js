@@ -1,3 +1,6 @@
+
+"use strict";
+
 /* =========================================================
    FTTH MANAGER — APLICAÇÃO PRINCIPAL
    Arquivo: app.js
@@ -5,9 +8,9 @@
 
 let appInitialized = false;
 
-/* ---------------------------------------------------------
+/* =========================================================
    INICIALIZAÇÃO GERAL
---------------------------------------------------------- */
+   ========================================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
     initializeFTTHApp();
@@ -72,12 +75,13 @@ function initializeFTTHApp() {
     }
 }
 
-/* ---------------------------------------------------------
+/* =========================================================
    GARANTIR ESTRUTURA DOS DADOS
---------------------------------------------------------- */
+   ========================================================= */
 
 function ensureAppData() {
-    if (!window.data) {
+    // Não substituir os dados carregados pelo storage.js.
+    if (typeof data === "undefined" || !data || typeof data !== "object") {
         data = {};
     }
 
@@ -101,27 +105,39 @@ function ensureAppData() {
     if (!data.settings || typeof data.settings !== "object") {
         data.settings = {};
     }
+
+    if (data.settings.showLabels === undefined) {
+        data.settings.showLabels = true;
+    }
+
+    if (!data.settings.mapType) {
+        data.settings.mapType = "satellite";
+    }
 }
 
-/* ---------------------------------------------------------
+/* =========================================================
    INICIALIZAR MAPA
---------------------------------------------------------- */
+   ========================================================= */
 
 function initializeMapModule() {
     if (typeof initMap !== "function") {
         throw new Error("Módulo do mapa não encontrado.");
     }
 
-    initMap();
+    const initializedMap = initMap();
+
+    if (!initializedMap) {
+        throw new Error("Não foi possível inicializar o mapa.");
+    }
 
     if (typeof setupMapEvents === "function") {
         setupMapEvents();
     }
 }
 
-/* ---------------------------------------------------------
+/* =========================================================
    NOTIFICAÇÕES
---------------------------------------------------------- */
+   ========================================================= */
 
 function toast(message, type = "info") {
     showToast(message, type);
@@ -156,18 +172,20 @@ function showToast(message, type = "info") {
     }, 3500);
 }
 
-/* ---------------------------------------------------------
+/* =========================================================
    NAVEGAÇÃO ENTRE ABAS
---------------------------------------------------------- */
+   ========================================================= */
 
 function setupNavigation() {
     const buttons = document.querySelectorAll("[data-tab]");
 
     buttons.forEach(button => {
-        button.addEventListener("click", () => {
-            const tab = button.dataset.tab;
+        if (button.dataset.navigationInitialized === "true") return;
 
-            activateTab(tab);
+        button.dataset.navigationInitialized = "true";
+
+        button.addEventListener("click", () => {
+            activateTab(button.dataset.tab);
         });
     });
 }
@@ -180,7 +198,8 @@ function activateTab(tabName) {
         );
     });
 
-    document.querySelectorAll(".tab-panel").forEach(panel => {
+    // O HTML utiliza .tab-content.
+    document.querySelectorAll(".tab-content").forEach(panel => {
         panel.classList.toggle(
             "active",
             panel.id === `tab-${tabName}`
@@ -190,20 +209,32 @@ function activateTab(tabName) {
     if (tabName === "network" && map) {
         setTimeout(() => {
             map.invalidateSize();
-        }, 100);
+        }, 150);
     }
 
     if (tabName === "engineering") {
-        renderEngineering();
+        if (typeof renderEngineering === "function") {
+            renderEngineering();
+        }
+    }
+
+    if (tabName === "dashboard" && map) {
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 150);
     }
 }
 
-/* ---------------------------------------------------------
+/* =========================================================
    FERRAMENTAS DO MAPA
---------------------------------------------------------- */
+   ========================================================= */
 
 function setupMapTools() {
     document.querySelectorAll("[data-tool]").forEach(button => {
+        if (button.dataset.appToolInitialized === "true") return;
+
+        button.dataset.appToolInitialized = "true";
+
         button.addEventListener("click", () => {
             const tool = button.dataset.tool;
 
@@ -215,8 +246,13 @@ function setupMapTools() {
             });
 
             if (tool === "select") {
-                currentEquipmentType = null;
-                setDrawingMode("select");
+                if (typeof currentEquipmentType !== "undefined") {
+                    currentEquipmentType = null;
+                }
+
+                if (typeof setDrawingMode === "function") {
+                    setDrawingMode("select");
+                }
 
                 const hint = document.getElementById("mapHint");
 
@@ -228,28 +264,62 @@ function setupMapTools() {
             }
 
             if (tool === "cable") {
-                currentEquipmentType = null;
-                setDrawingMode("cable");
+                if (typeof currentEquipmentType !== "undefined") {
+                    currentEquipmentType = null;
+                }
+
+                if (typeof setDrawingMode === "function") {
+                    setDrawingMode("cable");
+                }
+
                 return;
             }
 
-            if (EQUIPMENT_CONFIG[tool]) {
-                setDrawingMode(tool);
-                setActiveEquipmentTool(tool);
+            if (tool === "client") {
+                if (typeof currentEquipmentType !== "undefined") {
+                    currentEquipmentType = null;
+                }
+
+                if (typeof openClientForm === "function") {
+                    openClientForm();
+                } else {
+                    showToast(
+                        "Não foi possível abrir o cadastro de cliente.",
+                        "warning"
+                    );
+                }
+
+                return;
+            }
+
+            if (
+                typeof EQUIPMENT_CONFIG !== "undefined" &&
+                EQUIPMENT_CONFIG[tool]
+            ) {
+                if (typeof setDrawingMode === "function") {
+                    setDrawingMode(tool);
+                }
+
+                if (typeof setActiveEquipmentTool === "function") {
+                    setActiveEquipmentTool(tool);
+                }
             }
         });
     });
 }
 
-/* ---------------------------------------------------------
+/* =========================================================
    CLIQUE NO MAPA
---------------------------------------------------------- */
-
-// Encaminha os cliques para o desenho de cabos
-// ou para o cadastro de equipamentos.
+   ========================================================= */
 
 function handleMapClick(event) {
-    if (drawingActive && drawingMode === "cable") {
+    if (!event || !event.latlng) return;
+
+    if (
+        typeof drawingActive !== "undefined" &&
+        drawingActive &&
+        drawingMode === "cable"
+    ) {
         if (typeof handleDrawingMapPoint === "function") {
             handleDrawingMapPoint(event);
         } else {
@@ -259,17 +329,28 @@ function handleMapClick(event) {
         return;
     }
 
-    if (currentEquipmentType) {
-        handleEquipmentMapClick(event);
+    if (
+        typeof currentEquipmentType !== "undefined" &&
+        currentEquipmentType
+    ) {
+        if (typeof handleEquipmentMapClick === "function") {
+            handleEquipmentMapClick(event);
+        }
     }
 }
 
-/* ---------------------------------------------------------
+/* =========================================================
    ADICIONAR PONTO AO CABO
---------------------------------------------------------- */
+   ========================================================= */
 
 function addPointToCurrentCable(event) {
-    if (!drawingActive || !event?.latlng) return;
+    if (
+        typeof drawingActive === "undefined" ||
+        !drawingActive ||
+        !event?.latlng
+    ) {
+        return;
+    }
 
     const point = {
         lat: Number(event.latlng.lat),
@@ -283,13 +364,18 @@ function addPointToCurrentCable(event) {
         addDrawingMarker(point);
     }
 
-    updateDrawingPreview();
-    updateDrawingInterface();
+    if (typeof updateDrawingPreview === "function") {
+        updateDrawingPreview();
+    }
+
+    if (typeof updateDrawingInterface === "function") {
+        updateDrawingInterface();
+    }
 }
 
-/* ---------------------------------------------------------
+/* =========================================================
    BOTÕES GERAIS
---------------------------------------------------------- */
+   ========================================================= */
 
 function setupGeneralButtons() {
     const clearButton = document.getElementById("clearDataBtn");
@@ -318,19 +404,29 @@ function setupGeneralButtons() {
         });
     }
 
+    /* PREFERÊNCIA DE RÓTULOS DO MAPA */
+
     const showLabels = document.getElementById("showLabels");
 
     if (showLabels) {
         showLabels.checked = data.settings.showLabels !== false;
 
-        showLabels.addEventListener("change", () => {
-            data.settings.showLabels = showLabels.checked;
+        if (showLabels.dataset.labelsInitialized !== "true") {
+            showLabels.dataset.labelsInitialized = "true";
 
-            saveData();
+            showLabels.addEventListener("change", () => {
+                data.settings.showLabels = showLabels.checked;
 
-            renderMap();
-        });
+                saveData();
+
+                if (typeof applyMapPreferences === "function") {
+                    applyMapPreferences();
+                }
+            });
+        }
     }
+
+    /* EXPORTAR KML */
 
     const exportKml = document.getElementById("exportKmlBtn");
 
@@ -339,9 +435,9 @@ function setupGeneralButtons() {
     }
 }
 
-/* ---------------------------------------------------------
+/* =========================================================
    SISTEMA DE BACKUP
---------------------------------------------------------- */
+   ========================================================= */
 
 function setupBackupSystem() {
     const backupButton = document.getElementById("backupBtn");
@@ -350,7 +446,7 @@ function setupBackupSystem() {
         backupButton.addEventListener("click", () => {
             if (typeof createBackup === "function") {
                 createBackup();
-            } else {
+            } else if (typeof exportDataJSON === "function") {
                 exportDataJSON();
             }
         });
@@ -385,7 +481,11 @@ function openBackupFile() {
             if (!confirmed) return;
 
             if (typeof restoreBackup === "function") {
-                restoreBackup(backup);
+                const restored = restoreBackup(backup);
+
+                if (restored === false) {
+                    throw new Error("O backup não pôde ser restaurado.");
+                }
 
                 showToast("Backup restaurado.", "success");
 
@@ -407,19 +507,21 @@ function openBackupFile() {
     input.click();
 }
 
-/* ---------------------------------------------------------
+/* =========================================================
    BUSCA DE EQUIPAMENTOS NA REDE
---------------------------------------------------------- */
+   ========================================================= */
 
 function setupNetworkSearch() {
     const input = document.getElementById("networkSearch");
 
     if (!input) return;
 
+    if (input.dataset.networkSearchInitialized === "true") return;
+
+    input.dataset.networkSearchInitialized = "true";
+
     input.addEventListener("input", () => {
-        const query = input.value
-            .trim()
-            .toLowerCase();
+        const query = input.value.trim().toLowerCase();
 
         filterNetworkLists(query);
     });
@@ -436,15 +538,13 @@ function filterNetworkLists(query) {
     ).forEach(card => {
         const text = card.textContent.toLowerCase();
 
-        card.style.display = text.includes(query)
-            ? ""
-            : "none";
+        card.style.display = text.includes(query) ? "" : "none";
     });
 }
 
-/* ---------------------------------------------------------
+/* =========================================================
    PREFERÊNCIAS DO MAPA
---------------------------------------------------------- */
+   ========================================================= */
 
 function setupMapPreferences() {
     if (typeof applyMapPreferences === "function") {
@@ -452,14 +552,16 @@ function setupMapPreferences() {
     }
 }
 
-/* ---------------------------------------------------------
+/* =========================================================
    RENDERIZAR TUDO
---------------------------------------------------------- */
+   ========================================================= */
 
 function renderAll() {
     ensureAppData();
 
-    updateCTOPortOccupancy();
+    if (typeof updateCTOPortOccupancy === "function") {
+        updateCTOPortOccupancy();
+    }
 
     renderDashboard();
     renderLists();
@@ -481,9 +583,9 @@ function renderAll() {
     }
 }
 
-/* ---------------------------------------------------------
+/* =========================================================
    ATUALIZAR PAINEL PRINCIPAL
---------------------------------------------------------- */
+   ========================================================= */
 
 function renderDashboard() {
     const totalCTOs = data.ctos.length;
@@ -516,9 +618,9 @@ function renderDashboard() {
     renderRecentActivity();
 }
 
-/* ---------------------------------------------------------
+/* =========================================================
    DEFINIR TEXTO DE ELEMENTO
---------------------------------------------------------- */
+   ========================================================= */
 
 function setText(elementId, value) {
     const element = document.getElementById(elementId);
@@ -528,9 +630,9 @@ function setText(elementId, value) {
     }
 }
 
-/* ---------------------------------------------------------
+/* =========================================================
    RENDERIZAR LISTAS
---------------------------------------------------------- */
+   ========================================================= */
 
 function renderLists() {
     renderEquipmentLists();
@@ -546,9 +648,9 @@ function renderLists() {
     }
 }
 
-/* ---------------------------------------------------------
+/* =========================================================
    LISTAS DE EQUIPAMENTOS
---------------------------------------------------------- */
+   ========================================================= */
 
 function renderEquipmentLists() {
     renderEquipmentCollection(
@@ -580,7 +682,12 @@ function renderEquipmentLists() {
     );
 }
 
-function renderEquipmentCollection(containerId, collection, type, emptyMessage) {
+function renderEquipmentCollection(
+    containerId,
+    collection,
+    type,
+    emptyMessage
+) {
     const container = document.getElementById(containerId);
 
     if (!container) return;
@@ -614,15 +721,23 @@ function renderEquipmentCollection(containerId, collection, type, emptyMessage) 
         }
 
         if (type === "ceo") {
-            extra = `<span>Capacidade: ${Number(item.capacity || 0)}</span>`;
+            extra = `
+                <span>
+                    Capacidade: ${Number(item.capacity || 0)}
+                </span>
+            `;
         }
 
         if (type === "splitter") {
-            extra = `<span>${escapeHTML(item.ratio || "")}</span>`;
+            extra = `
+                <span>${escapeHTML(item.ratio || "")}</span>
+            `;
         }
 
         if (type === "pole") {
-            extra = `<span>${escapeHTML(item.type || "Poste")}</span>`;
+            extra = `
+                <span>${escapeHTML(item.type || "Poste")}</span>
+            `;
         }
 
         card.innerHTML = `
@@ -633,13 +748,17 @@ function renderEquipmentCollection(containerId, collection, type, emptyMessage) 
             </div>
 
             <div class="equipment-card-actions">
-                <button class="btn-secondary"
-                    onclick="openEquipmentDetails('${type}', '${item.id}')">
+                <button
+                    class="btn-secondary"
+                    onclick="openEquipmentDetails('${type}', '${escapeHTML(item.id)}')"
+                >
                     Ver
                 </button>
 
-                <button class="btn-secondary"
-                    onclick="editEquipment('${type}', '${item.id}')">
+                <button
+                    class="btn-secondary"
+                    onclick="editEquipment('${type}', '${escapeHTML(item.id)}')"
+                >
                     Editar
                 </button>
             </div>
@@ -649,9 +768,9 @@ function renderEquipmentCollection(containerId, collection, type, emptyMessage) 
     });
 }
 
-/* ---------------------------------------------------------
+/* =========================================================
    LISTA DE IMPORTAÇÕES
---------------------------------------------------------- */
+   ========================================================= */
 
 function renderImportedList() {
     const container = document.getElementById("importedList");
@@ -682,8 +801,10 @@ function renderImportedList() {
                 <span>${Number(imported.featureCount || 0)} elementos</span>
             </div>
 
-            <button class="btn-danger"
-                onclick="deleteImport('${imported.id}')">
+            <button
+                class="btn-danger"
+                onclick="deleteImport('${escapeHTML(imported.id)}')"
+            >
                 Excluir
             </button>
         `;
@@ -692,9 +813,9 @@ function renderImportedList() {
     });
 }
 
-/* ---------------------------------------------------------
+/* =========================================================
    ATIVIDADES RECENTES
---------------------------------------------------------- */
+   ========================================================= */
 
 function renderRecentActivity() {
     const container = document.getElementById("recentList");
@@ -781,16 +902,18 @@ function formatActivityDate(date) {
     return parsed.toLocaleDateString("pt-BR");
 }
 
-/* ---------------------------------------------------------
+/* =========================================================
    EXPORTAR REDE EM KML
---------------------------------------------------------- */
+   ========================================================= */
 
 function exportNetworkKML() {
     const placemarks = [];
 
     function addPoint(item, type) {
-        if (!Number.isFinite(Number(item.lat)) ||
-            !Number.isFinite(Number(item.lng))) {
+        if (
+            !Number.isFinite(Number(item.lat)) ||
+            !Number.isFinite(Number(item.lng))
+        ) {
             return;
         }
 
@@ -857,9 +980,9 @@ function exportNetworkKML() {
     showToast("Arquivo KML exportado.", "success");
 }
 
-/* ---------------------------------------------------------
+/* =========================================================
    CONVERTER COR HEX PARA KML
---------------------------------------------------------- */
+   ========================================================= */
 
 function hexToKMLColor(hex) {
     const value = String(hex).replace("#", "");
@@ -875,9 +998,9 @@ function hexToKMLColor(hex) {
     return `ff${blue}${green}${red}`;
 }
 
-/* ---------------------------------------------------------
+/* =========================================================
    ESCAPAR XML
---------------------------------------------------------- */
+   ========================================================= */
 
 function xmlEscape(value) {
     return String(value ?? "")
@@ -888,9 +1011,9 @@ function xmlEscape(value) {
         .replace(/'/g, "&apos;");
 }
 
-/* ---------------------------------------------------------
+/* =========================================================
    DOWNLOAD GENÉRICO
---------------------------------------------------------- */
+   ========================================================= */
 
 function downloadAppFile(content, filename, mimeType) {
     const blob = new Blob([content], {
@@ -911,49 +1034,79 @@ function downloadAppFile(content, filename, mimeType) {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-/* ---------------------------------------------------------
+/* =========================================================
    ATALHOS DE TECLADO
---------------------------------------------------------- */
+   ========================================================= */
 
 document.addEventListener("keydown", event => {
     const target = event.target;
 
-    const typing = target &&
-        (
-            target.tagName === "INPUT" ||
-            target.tagName === "TEXTAREA" ||
-            target.isContentEditable
-        );
+    const typing = target && (
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.isContentEditable
+    );
 
     if (typing) return;
 
     if (event.key === "Escape") {
-        if (drawingActive) {
+        if (
+            typeof drawingActive !== "undefined" &&
+            drawingActive &&
+            typeof cancelCableDrawing === "function"
+        ) {
             cancelCableDrawing();
         } else {
-            closeEquipmentModal();
-            closeClientModal();
-            closeCableModal();
-            closeEngineeringModal();
+            if (typeof closeEquipmentModal === "function") {
+                closeEquipmentModal();
+            }
+
+            if (typeof closeClientModal === "function") {
+                closeClientModal();
+            }
+
+            if (typeof closeCableModal === "function") {
+                closeCableModal();
+            }
+
+            if (typeof closeEngineeringModal === "function") {
+                closeEngineeringModal();
+            }
         }
     }
 
-    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
+    if (
+        (event.ctrlKey || event.metaKey) &&
+        event.key.toLowerCase() === "z"
+    ) {
         event.preventDefault();
 
-        if (drawingActive) {
+        if (
+            typeof drawingActive !== "undefined" &&
+            drawingActive &&
+            typeof undoDrawingPoint === "function"
+        ) {
             undoDrawingPoint();
+
         } else if (typeof undoData === "function") {
             undoData();
             renderAll();
         }
     }
 
-    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "y") {
+    if (
+        (event.ctrlKey || event.metaKey) &&
+        event.key.toLowerCase() === "y"
+    ) {
         event.preventDefault();
 
-        if (drawingActive) {
+        if (
+            typeof drawingActive !== "undefined" &&
+            drawingActive &&
+            typeof redoDrawingPoint === "function"
+        ) {
             redoDrawingPoint();
+
         } else if (typeof redoData === "function") {
             redoData();
             renderAll();
@@ -961,10 +1114,15 @@ document.addEventListener("keydown", event => {
     }
 });
 
-/* ---------------------------------------------------------
-   EXPOR FUNÇÕES DE ATUALIZAÇÃO
---------------------------------------------------------- */
+/* =========================================================
+   EXPOR FUNÇÕES
+   ========================================================= */
 
 window.renderAll = renderAll;
 window.renderLists = renderLists;
 window.renderDashboard = renderDashboard;
+window.activateTab = activateTab;
+window.showToast = showToast;
+window.toast = toast;
+window.handleMapClick = handleMapClick;
+window.exportNetworkKML = exportNetworkKML;

@@ -1,26 +1,138 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FTTH Manager | Gestão de Rede</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#090b0f;--panel:#11151c;--panel2:#171d26;--line:#252d39;--muted:#8e9aaa;--text:#f4f6f8;--white:#fff;--green:#32c878;--red:#f16b72;--yellow:#f0bd55;--blue:#72a9ff}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px Inter,Arial,sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer;border:1px solid var(--line);background:#202733;color:var(--text);border-radius:9px;padding:10px 13px;font-weight:600}button:hover{filter:brightness(1.15)}button.primary{background:#f4f6f8;color:#101318;border-color:#f4f6f8}button.danger{color:#ff9da2;border-color:#65363b;background:#28181b}.app{height:100vh;display:grid;grid-template-rows:64px 1fr}.top{display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid var(--line);background:#0d1015;gap:15px}.brand{display:flex;align-items:center;gap:11px;font-weight:800;letter-spacing:.3px}.logo{width:34px;height:34px;border:1px solid #657080;border-radius:10px;display:grid;place-items:center;font-size:17px}.top small{color:var(--muted);font-weight:500}.actions{display:flex;gap:8px;align-items:center}.layout{display:grid;grid-template-columns:330px 1fr;min-height:0}.sidebar{background:var(--panel);border-right:1px solid var(--line);overflow:auto;padding:16px}.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:15px}.tab{padding:9px 5px;font-size:12px;background:transparent;color:var(--muted)}.tab.active{background:var(--panel2);color:white;border-color:#3b4655}.section{margin:15px 0}.section h3{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin:0 0 10px}.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.stat{background:var(--panel2);border:1px solid var(--line);padding:12px;border-radius:11px}.stat b{display:block;font-size:22px;margin-bottom:3px}.stat span{font-size:11px;color:var(--muted)}.field{display:flex;flex-direction:column;gap:6px;margin:10px 0}.field label{font-size:12px;color:#b7c0cc}.field input,.field select,.field textarea{width:100%;background:#0b0f14;border:1px solid #303947;color:white;border-radius:8px;padding:10px;outline:none}.field input:focus,.field select:focus{border-color:#8b98aa}.row{display:flex;gap:8px}.row>*{flex:1;min-width:0}.list{display:flex;flex-direction:column;gap:7px}.item{border:1px solid var(--line);border-radius:10px;padding:10px;background:#0d1117;display:flex;justify-content:space-between;gap:8px;align-items:center}.item strong{display:block;font-size:13px}.item small{color:var(--muted);font-size:11px}.pill{font-size:10px;padding:4px 7px;border-radius:20px;background:#1b3429;color:#70e0a5;white-space:nowrap}.pill.gray{background:#252c36;color:#c2cad4}.mapwrap{position:relative;min-width:0;background:#171d25}#map{height:100%;width:100%;min-height:400px}.leaflet-container{background:#171d25;font:12px Inter,Arial,sans-serif}.leaflet-control-layers{background:#111821;color:#f4f6f8;border:1px solid #3b4655}.leaflet-control-attribution{background:#111821cc!important;color:#d0d7e1!important}.leaflet-control-attribution a{color:#9fc2ff!important}.maptools{position:absolute;top:14px;left:14px;z-index:5;display:flex;flex-wrap:wrap;gap:7px;max-width:calc(100% - 28px)}.maptools button{background:#111821ed;backdrop-filter:blur(8px);font-size:12px}.maptools button.active{background:#f4f6f8;color:#111}.maphint{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);z-index:5;background:#111821eF;border:1px solid #3a4655;border-radius:10px;padding:10px 14px;color:#dce3ec;font-size:12px;max-width:90%;text-align:center;display:none}.empty{color:var(--muted);font-size:12px;padding:12px;text-align:center;border:1px dashed var(--line);border-radius:9px}.hidden{display:none!important}.modalback{position:fixed;inset:0;background:#000a;z-index:20;display:grid;place-items:center;padding:15px}.modal{width:min(520px,100%);max-height:90vh;overflow:auto;background:#121821;border:1px solid #35404e;border-radius:16px;padding:18px;box-shadow:0 20px 80px #0009}.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.modal h2{font-size:18px;margin:0}.close{padding:5px 10px}.ports{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}.port{padding:12px 4px;text-align:center;border-radius:9px;border:1px solid #344052;background:#19212b;font-size:12px}.port.used{background:#193628;border-color:#286846;color:#83e4ac}.port.blocked{background:#3b2d18;border-color:#735622;color:#f4cb75}.notice{font-size:11px;color:var(--muted);line-height:1.5}.footer{color:#758191;font-size:10px;margin-top:18px;line-height:1.5}.toast{position:fixed;bottom:20px;right:20px;background:#e9eef5;color:#10151c;padding:12px 16px;border-radius:10px;z-index:40;box-shadow:0 8px 30px #0008;font-weight:600}.filelabel{display:inline-flex;align-items:center;gap:6px}.filelabel input{display:none}
-@media(max-width:800px){.app{height:auto;min-height:100vh;grid-template-rows:58px auto}.layout{grid-template-columns:1fr;grid-template-rows:auto 65vh}.sidebar{border-right:0;border-bottom:1px solid var(--line);max-height:none}.top{padding:0 12px}.top small{display:none}.actions button{padding:8px;font-size:11px}.maptools{top:8px;left:8px}.maptools button{padding:8px;font-size:11px}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px Inter,Arial,sans-serif}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;border:1px solid var(--line);background:#202733;color:var(--text);border-radius:9px;padding:10px 13px;font-weight:600}
+button:hover{filter:brightness(1.15)}
+button.primary{background:#f4f6f8;color:#101318;border-color:#f4f6f8}
+button.danger{color:#ff9da2;border-color:#65363b;background:#28181b}
+.app{height:100vh;display:grid;grid-template-rows:64px 1fr}
+.top{display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid var(--line);background:#0d1015;gap:15px}
+.brand{display:flex;align-items:center;gap:11px;font-weight:800;letter-spacing:.3px}
+.logo{width:34px;height:34px;border:1px solid #657080;border-radius:10px;display:grid;place-items:center;font-size:17px}
+.top small{color:var(--muted);font-weight:500}
+.actions{display:flex;gap:8px;align-items:center}
+.layout{display:grid;grid-template-columns:330px 1fr;min-height:0}
+.sidebar{background:var(--panel);border-right:1px solid var(--line);overflow:auto;padding:16px}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:15px}
+.tab{padding:9px 5px;font-size:12px;background:transparent;color:var(--muted)}
+.tab.active{background:var(--panel2);color:white;border-color:#3b4655}
+.section{margin:15px 0}
+.section h3{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin:0 0 10px}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.stat{background:var(--panel2);border:1px solid var(--line);padding:12px;border-radius:11px}
+.stat b{display:block;font-size:22px;margin-bottom:3px}
+.stat span{font-size:11px;color:var(--muted)}
+.field{display:flex;flex-direction:column;gap:6px;margin:10px 0}
+.field label{font-size:12px;color:#b7c0cc}
+.field input,.field select,.field textarea{width:100%;background:#0b0f14;border:1px solid #303947;color:white;border-radius:8px;padding:10px;outline:none}
+.field input:focus,.field select:focus{border-color:#8b98aa}
+.row{display:flex;gap:8px}
+.row>*{flex:1;min-width:0}
+.list{display:flex;flex-direction:column;gap:7px}
+.item{border:1px solid var(--line);border-radius:10px;padding:10px;background:#0d1117;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.item strong{display:block;font-size:13px}
+.item small{color:var(--muted);font-size:11px}
+.pill{font-size:10px;padding:4px 7px;border-radius:20px;background:#1b3429;color:#70e0a5;white-space:nowrap}
+.pill.gray{background:#252c36;color:#c2cad4}
+.mapwrap{position:relative;min-width:0;background:#171d25}
+#map{height:100%;width:100%;min-height:400px}
+.leaflet-container{background:#171d25;font:12px Inter,Arial,sans-serif}
+.leaflet-control-layers{background:#111821;color:#f4f6f8;border:1px solid #3b4655}
+.leaflet-control-attribution{background:#111821cc!important;color:#d0d7e1!important}
+.leaflet-control-attribution a{color:#9fc2ff!important}
+.maptools{position:absolute;top:14px;left:14px;z-index:5;display:flex;flex-wrap:wrap;gap:7px;max-width:calc(100% - 28px)}
+.maptools button{background:#111821ed;backdrop-filter:blur(8px);font-size:12px}
+.maptools button.active{background:#f4f6f8;color:#111}
+.maphint{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);z-index:5;background:#111821eF;border:1px solid #3a4655;border-radius:10px;padding:10px 14px;color:#dce3ec;font-size:12px;max-width:90%;text-align:center;display:none}
+.empty{color:var(--muted);font-size:12px;padding:12px;text-align:center;border:1px dashed var(--line);border-radius:9px}
+.hidden{display:none!important}
+.modalback{position:fixed;inset:0;background:#000a;z-index:20;display:grid;place-items:center;padding:15px}
+.modal{width:min(520px,100%);max-height:90vh;overflow:auto;background:#121821;border:1px solid #35404e;border-radius:16px;padding:18px;box-shadow:0 20px 80px #0009}
+.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.modal h2{font-size:18px;margin:0}
+.close{padding:5px 10px}
+.ports{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}
+.port{padding:12px 4px;text-align:center;border-radius:9px;border:1px solid #344052;background:#19212b;font-size:12px}
+.port.used{background:#193628;border-color:#286846;color:#83e4ac}
+.port.blocked{background:#3b2d18;border-color:#735622;color:#f4cb75}
+.notice{font-size:11px;color:var(--muted);line-height:1.5}
+.footer{color:#758191;font-size:10px;margin-top:18px;line-height:1.5}
+.toast{position:fixed;bottom:20px;right:20px;background:#e9eef5;color:#10151c;padding:12px 16px;border-radius:10px;z-index:40;box-shadow:0 8px 30px #0008;font-weight:600}
+.filelabel{display:inline-flex;align-items:center;gap:6px}
+.filelabel input{display:none}
+@media(max-width:800px){
+.app{height:auto;min-height:100vh;grid-template-rows:58px auto}
+.layout{grid-template-columns:1fr;grid-template-rows:auto 65vh}
+.sidebar{border-right:0;border-bottom:1px solid var(--line);max-height:none}
+.top{padding:0 12px}
+.top small{display:none}
+.actions button{padding:8px;font-size:11px}
+.maptools{top:8px;left:8px}
+.maptools button{padding:8px;font-size:11px}
+}
+.imported-point{background:#347fcb;border:2px solid #fff;border-radius:50% 50% 50% 0;width:28px;height:28px;transform:rotate(-45deg);box-shadow:0 2px 7px #0008;display:flex;align-items:center;justify-content:center}
+.imported-point span{transform:rotate(45deg);color:#fff;font-size:11px;font-weight:800}
+.map-cto{background:#20a568;border:2px solid #fff;border-radius:6px;width:28px;height:28px;display:grid;place-items:center;color:#fff;font-weight:900;box-shadow:0 2px 7px #0008}
+.map-box{background:#d99b2b;border:2px solid #fff;border-radius:50%;width:25px;height:25px;display:grid;place-items:center;color:#fff;font-weight:900;box-shadow:0 2px 7px #0008}
+.map-client{background:#347fcb;border:2px solid #fff;border-radius:50%;width:18px;height:18px;box-shadow:0 2px 7px #0008}
 </style>
 </head>
 <body>
 <div class="app">
-<header class="top"><div class="brand"><div class="logo">F</div><div>FTTH MANAGER <small> / Gestão de rede</small></div></div><div class="actions"><button id="exportBtn">Exportar KML</button><button class="primary" id="importBtn">Importar KML/KMZ</button><input type="file" id="fileInput" accept=".kml,.kmz" hidden></div></header>
+<header class="top">
+<div class="brand"><div class="logo">F</div><div>FTTH MANAGER <small> / Gestão de rede</small></div></div>
+<div class="actions">
+<button id="exportBtn">Exportar KML</button>
+<button class="primary" id="importBtn">Importar KML/KMZ</button>
+<input type="file" id="fileInput" accept=".kml,.kmz" hidden>
+</div>
+</header>
 <div class="layout">
 <aside class="sidebar">
-<div class="tabs"><button class="tab active" data-tab="overview">Visão geral</button><button class="tab" data-tab="network">Rede</button><button class="tab" data-tab="settings">Ajustes</button></div>
+<div class="tabs">
+<button class="tab active" data-tab="overview">Visão geral</button>
+<button class="tab" data-tab="network">Rede</button>
+<button class="tab" data-tab="settings">Ajustes</button>
+</div>
 <div id="overview">
-<div class="section"><h3>Resumo da operação</h3><div class="stats"><div class="stat"><b id="statCto">0</b><span>CTOs cadastradas</span></div><div class="stat"><b id="statClients">0</b><span>Clientes vinculados</span></div><div class="stat"><b id="statFree">0</b><span>Portas livres</span></div><div class="stat"><b id="statBoxes">0</b><span>Caixas / emendas</span></div></div></div>
-<div class="section"><h3>Atalhos</h3><div class="list"><button data-mode="cto">＋ Adicionar CTO no mapa</button><button data-mode="box">＋ Adicionar caixa / emenda</button><button data-mode="cable">⌁ Desenhar cabo de fibra</button><button id="addClientBtn">＋ Cadastrar cliente</button></div></div>
-<div class="section"><h3>Últimos elementos</h3><div class="list" id="recentList"><div class="empty">Importe um projeto ou adicione elementos no mapa.</div></div></div>
+<div class="section">
+<h3>Resumo da operação</h3>
+<div class="stats">
+<div class="stat"><b id="statCto">0</b><span>CTOs cadastradas</span></div>
+<div class="stat"><b id="statClients">0</b><span>Clientes vinculados</span></div>
+<div class="stat"><b id="statFree">0</b><span>Portas livres</span></div>
+<div class="stat"><b id="statBoxes">0</b><span>Caixas / emendas</span></div>
+<div class="stat"><b id="statImported">0</b><span>Elementos importados</span></div>
+</div>
+</div>
+<div class="section">
+<h3>Atalhos</h3>
+<div class="list">
+<button data-mode="cto">＋ Adicionar CTO no mapa</button>
+<button data-mode="box">＋ Adicionar caixa / emenda</button>
+<button data-mode="cable">⌁ Desenhar cabo de fibra</button>
+<button id="addClientBtn">＋ Cadastrar cliente</button>
+</div>
+</div>
+<div class="section">
+<h3>Projeto importado</h3>
+<div class="list" id="importedList"><div class="empty">Nenhum elemento importado.</div></div>
+</div>
+<div class="section">
+<h3>Últimos elementos</h3>
+<div class="list" id="recentList"><div class="empty">Importe um projeto ou adicione elementos no mapa.</div></div>
+</div>
 </div>
 <div id="network" class="hidden">
 <div class="section"><h3>Pesquisar rede</h3><div class="field"><input id="search" placeholder="Nome, código ou cliente..."></div></div>
@@ -29,123 +141,1408 @@
 <div class="section"><h3>Caixas e emendas</h3><div id="boxList" class="list"><div class="empty">Nenhuma caixa cadastrada.</div></div></div>
 </div>
 <div id="settings" class="hidden">
-<div class="section"><h3>Camadas do mapa</h3><p class="notice">O mapa utiliza Leaflet, imagens de satélite Esri e ruas OpenStreetMap. Não precisa de chave Google. Use o seletor no canto superior direito do mapa para alternar entre Satélite e Ruas. A camada de nomes pode ser ligada ou desligada.</p><p class="notice">A disponibilidade, resolução e cobertura das imagens variam conforme a região. Os créditos dos provedores aparecem no mapa.</p></div>
-<div class="section"><h3>Dados locais</h3><p class="notice">Os dados são armazenados no localStorage deste navegador e dispositivo. Limpar os dados do navegador pode apagar seu projeto. Faça exportações KML de segurança regularmente.</p><button id="backupBtn">Baixar backup JSON</button> <button class="danger" id="clearBtn">Apagar todos os dados</button></div>
+<div class="section">
+<h3>Camadas do mapa</h3>
+<p class="notice">O mapa utiliza Leaflet, imagens de satélite Esri e ruas OpenStreetMap. Não precisa de chave Google. Use o seletor no canto superior direito do mapa para alternar entre Satélite e Ruas. A camada de nomes pode ser ligada ou desligada.</p>
+<p class="notice">A disponibilidade, resolução e cobertura das imagens variam conforme a região. Os créditos dos provedores aparecem no mapa.</p>
+</div>
+<div class="section">
+<h3>Dados locais</h3>
+<p class="notice">Os dados são armazenados no localStorage deste navegador e dispositivo. Limpar os dados do navegador pode apagar seu projeto. Faça exportações KML de segurança regularmente.</p>
+<button id="backupBtn">Baixar backup JSON</button>
+<button class="danger" id="clearBtn">Apagar todos os dados</button>
+</div>
 <div class="footer">FTTH Manager • Projeto local • GitHub Pages<br>Não envia dados para nenhum servidor.</div>
 </div>
 </aside>
-<main class="mapwrap"><div id="map"></div><div class="maptools"><button data-mode="select" class="active">↖ Selecionar</button><button data-mode="cto">＋ CTO</button><button data-mode="box">□ Caixa</button><button data-mode="cable">⌁ Cabo</button><button id="finishCable" class="hidden">Concluir cabo</button></div><div class="maphint" id="hint"></div></main>
-</div></div>
+<main class="mapwrap">
+<div id="map"></div>
+<div class="maptools">
+<button data-mode="select" class="active">↖ Selecionar</button>
+<button data-mode="cto">＋ CTO</button>
+<button data-mode="box">□ Caixa</button>
+<button data-mode="cable">⌁ Cabo</button>
+<button id="finishCable" class="hidden">Concluir cabo</button>
+</div>
+<div class="maphint" id="hint"></div>
+</main>
+</div>
+</div>
 <div id="modalRoot"></div>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script>
 const STORE='ftth_manager_v1';
-let data=load(), map=null, overlays=[], mode='select', cablePoints=[], tempLine=null, markers={}, mapReady=false;
-function load(){try{return JSON.parse(localStorage.getItem(STORE))||{ctos:[],clients:[],boxes:[],cables:[],imports:[]}}catch(e){return{ctos:[],clients:[],boxes:[],cables:[],imports:[]}}}
+let data=load(),map=null,overlays=[],mode='select',cablePoints=[],tempLine=null,mapReady=false;
+function load(){
+ try{return JSON.parse(localStorage.getItem(STORE))||{ctos:[],clients:[],boxes:[],cables:[],imports:[]}}
+ catch(e){return{ctos:[],clients:[],boxes:[],cables:[],imports:[]}}
+}
 function save(){localStorage.setItem(STORE,JSON.stringify(data));renderAll()}
 function id(prefix){return prefix+'-'+Math.random().toString(36).slice(2,7).toUpperCase()}
-function toast(msg){let el=document.createElement('div');el.className='toast';el.textContent=msg;document.body.append(el);setTimeout(()=>el.remove(),2600)}
+function toast(msg){
+ let el=document.createElement('div');el.className='toast';el.textContent=msg;document.body.append(el);setTimeout(()=>el.remove(),2600)
+}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
 function initMap(){
  const center=data.ctos[0]||data.boxes[0]||{lat:-8.991,lng:-36.055};
  map=L.map('map',{zoomControl:true}).setView([center.lat,center.lng],14);
- const streets=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'});
- const satellite=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Imagery &copy; <a href="https://www.esri.com/">Esri</a> and its data providers'});
- const labels=L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Labels &copy; Esri'});
- satellite.addTo(map);labels.addTo(map);
+ const streets=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  maxZoom:19,
+  attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+ });
+ const satellite=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{
+  maxZoom:19,
+  attribution:'Imagery &copy; <a href="https://www.esri.com/">Esri</a> and its data providers'
+ });
+ const labels=L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{
+  maxZoom:19,
+  attribution:'Labels &copy; Esri'
+ });
+ satellite.addTo(map);
+ labels.addTo(map);
  L.control.layers({'Satélite':satellite,'Ruas':streets},{'Nomes e limites':labels}).addTo(map);
- map.on('click',e=>mapClick(e.latlng));mapReady=true;renderMap();
+ map.on('click',e=>mapClick(e.latlng));
+ mapReady=true;
+ renderMap();
 }
 function clearOverlays(){overlays.forEach(o=>map.removeLayer(o));overlays=[]}
-function renderMap(){if(!mapReady)return;clearOverlays();data.imports.forEach(f=>drawGeo(f));data.cables.forEach(c=>{if(c.path&&c.path.length>1)overlays.push(L.polyline(c.path.map(p=>[p.lat,p.lng]),{color:c.color||'#ffca55',weight:4}).addTo(map))});data.boxes.forEach(b=>addMarker(b,'box'));data.ctos.forEach(c=>addMarker(c,'cto'));data.clients.forEach(c=>{if(c.lat&&c.lng)addMarker(c,'client')})}
-function addMarker(obj,type){let color=type==='cto'?'#35d18a':type==='box'?'#f2bd58':'#75a9ff';let marker=L.circleMarker([+obj.lat,+obj.lng],{radius:type==='cto'?9:7,color:'#10151b',weight:2,fillColor:color,fillOpacity:1}).addTo(map);marker.bindTooltip(esc(obj.name||obj.code||type),{direction:'top'});marker.on('click',()=>{if(type==='cto')showCto(obj.id);else if(type==='box')showBox(obj.id);else showClient(obj.id)});overlays.push(marker)}
-function drawGeo(f){let g=f.geometry;if(!g)return;let color=f.color||'#64a5ff';if(g.type==='Point'){let [lng,lat]=g.coordinates;overlays.push(L.marker([lat,lng]).addTo(map).bindTooltip(esc(f.name)))}else if(g.type==='LineString'||g.type==='MultiLineString'){let paths=g.type==='LineString'?[g.coordinates]:g.coordinates;paths.forEach(p=>overlays.push(L.polyline(p.map(a=>[a[1],a[0]]),{color,weight:3}).addTo(map)))}else if(g.type==='Polygon'||g.type==='MultiPolygon'){let polys=g.type==='Polygon'?[g.coordinates]:g.coordinates;polys.forEach(p=>overlays.push(L.polygon(p.map(r=>r.map(a=>[a[1],a[0]])),{color,fillColor:color,fillOpacity:.12,weight:2}).addTo(map)))}}
-function setMode(m){mode=m;cablePoints=[];if(tempLine){map.removeLayer(tempLine);tempLine=null}document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===m));document.getElementById('finishCable').classList.toggle('hidden',m!=='cable');let h=document.getElementById('hint');h.style.display=m==='select'?'none':'block';h.textContent=m==='cto'?'Clique no mapa para posicionar uma nova CTO.':m==='box'?'Clique no mapa para posicionar uma caixa ou emenda.':m==='cable'?'Clique nos pontos do trajeto. Use “Concluir cabo” ao terminar.':''}
-function mapClick(pos){if(mode==='select')return;let p={lat:pos.lat,lng:pos.lng};if(mode==='cto'){openCtoForm(p);setMode('select')}else if(mode==='box'){openBoxForm(p);setMode('select')}else if(mode==='cable'){cablePoints.push(p);if(!tempLine)tempLine=L.polyline(cablePoints.map(x=>[x.lat,x.lng]),{color:'#ffca55',weight:4,dashArray:'6 5'}).addTo(map);else tempLine.setLatLngs(cablePoints.map(x=>[x.lat,x.lng]))}}
-function finishCable(){if(cablePoints.length<2){toast('Marque pelo menos dois pontos.');return}let name=prompt('Identificação do cabo:','CABO-'+(data.cables.length+1));if(name){data.cables.push({id:id('CAB'),name,path:cablePoints,color:'#ffca55'});save();toast('Cabo adicionado.')}if(tempLine){map.removeLayer(tempLine);tempLine=null}setMode('select');renderMap()}
-function modal(title,body){document.getElementById('modalRoot').innerHTML=`<div class="modalback" id="back"><div class="modal"><div class="modalhead"><h2>${title}</h2><button class="close" onclick="closeModal()">✕</button></div>${body}</div></div>`;document.getElementById('back').addEventListener('click',e=>{if(e.target.id==='back')closeModal()})}
-function closeModal(){document.getElementById('modalRoot').innerHTML=''}
-function openCtoForm(p,existing=null){let c=existing||{id:id('CTO'),name:'CTO-'+String(data.ctos.length+1).padStart(3,'0'),lat:p.lat,lng:p.lng,capacity:16,ports:[]};modal(existing?'Editar CTO':'Nova CTO',`<form id="ctoForm"><div class="field"><label>Identificação</label><input name="name" required value="${esc(c.name)}"></div><div class="row"><div class="field"><label>Capacidade de portas</label><select name="capacity">${[8,16,24,32].map(n=>`<option ${c.capacity==n?'selected':''}>${n}</option>`).join('')}</select></div><div class="field"><label>Modelo / observação</label><input name="model" value="${esc(c.model||'')}" placeholder="Ex.: CTO óptica"></div></div><div class="field"><label>Localização</label><input value="${c.lat.toFixed(6)}, ${c.lng.toFixed(6)}" disabled></div><div class="field"><label>Observações</label><textarea name="notes" rows="2">${esc(c.notes||'')}</textarea></div><div class="row"><button type="button" onclick="closeModal()">Cancelar</button><button class="primary" type="submit">Salvar CTO</button></div></form>`);document.getElementById('ctoForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target);Object.assign(c,{name:f.get('name'),capacity:+f.get('capacity'),model:f.get('model'),notes:f.get('notes')});c.ports=c.ports||[];if(existing){data.ctos=data.ctos.map(x=>x.id===c.id?c:x)}else data.ctos.push(c);save();closeModal();renderMap();toast('CTO salva.')}}
-function openBoxForm(p,existing=null){let b=existing||{id:id('CX'),name:'CX-'+String(data.boxes.length+1).padStart(3,'0'),lat:p.lat,lng:p.lng};modal(existing?'Editar caixa':'Nova caixa / emenda',`<form id="boxForm"><div class="field"><label>Identificação</label><input name="name" required value="${esc(b.name)}"></div><div class="field"><label>Tipo</label><select name="type">${['Caixa de emenda','DIO','CEO','Reserva técnica','Outro'].map(x=>`<option ${b.type===x?'selected':''}>${x}</option>`).join('')}</select></div><div class="field"><label>Observações</label><textarea name="notes">${esc(b.notes||'')}</textarea></div><div class="row"><button type="button" onclick="closeModal()">Cancelar</button><button class="primary">Salvar caixa</button></div></form>`);document.getElementById('boxForm').onsubmit=e=>{e.preventDefault();let f=new FormData(e.target);Object.assign(b,{name:f.get('name'),type:f.get('type'),notes:f.get('notes')});if(existing)data.boxes=data.boxes.map(x=>x.id===b.id?b:x);else data.boxes.push(b);save();closeModal();renderMap()}}
-function openClientForm(existing=null,ctoId='',portNum=''){let c=existing||{id:id('CLI'),name:'',phone:'',address:'',plan:'',status:'Ativo',ctoId,port:portNum,lat:'',lng:''};let ctoOpts=data.ctos.map(x=>`<option value="${x.id}" ${c.ctoId===x.id?'selected':''}>${esc(x.name)}</option>`).join('');modal(existing?'Editar cliente':'Cadastrar cliente',`<form id="clientForm"><div class="field"><label>Nome do cliente</label><input name="name" required value="${esc(c.name)}"></div><div class="row"><div class="field"><label>Telefone</label><input name="phone" value="${esc(c.phone)}"></div><div class="field"><label>Plano</label><input name="plan" value="${esc(c.plan)}" placeholder="Ex.: 500 Mega"></div></div><div class="field"><label>Endereço</label><input name="address" value="${esc(c.address)}"></div><div class="row"><div class="field"><label>CTO</label><select name="ctoId"><option value="">Sem vínculo</option>${ctoOpts}</select></div><div class="field"><label>Porta</label><select name="port" id="clientPort"><option value="">Selecione</option></select></div></div><div class="row"><div class="field"><label>Latitude (opcional)</label><input name="lat" type="number" step="any" value="${esc(c.lat)}"></div><div class="field"><label>Longitude (opcional)</label><input name="lng" type="number" step="any" value="${esc(c.lng)}"></div></div><div class="field"><label>Status</label><select name="status"><option ${c.status==='Ativo'?'selected':''}>Ativo</option><option ${c.status==='Suspenso'?'selected':''}>Suspenso</option><option ${c.status==='Cancelado'?'selected':''}>Cancelado</option></select></div><div class="row"><button type="button" onclick="closeModal()">Cancelar</button><button class="primary">Salvar cliente</button></div></form>`);
-let form=document.getElementById('clientForm'),ctoSel=form.elements.ctoId,portSel=form.elements.port;function fillPorts(){let ct=data.ctos.find(x=>x.id===ctoSel.value);let opts='<option value="">Selecione</option>';if(ct)for(let n=1;n<=ct.capacity;n++){let taken=data.clients.find(x=>x.ctoId===ct.id&&String(x.port)===String(n)&&x.id!==c.id);opts+=`<option value="${n}" ${String(c.port)===String(n)?'selected':''} ${taken?'disabled':''}>Porta ${n}${taken?' • ocupada':''}</option>`}portSel.innerHTML=opts}ctoSel.onchange=()=>{c.port='';fillPorts()};fillPorts();form.onsubmit=e=>{e.preventDefault();let f=new FormData(form);Object.assign(c,Object.fromEntries(f.entries()));c.lat=c.lat===''?'':+c.lat;c.lng=c.lng===''?'':+c.lng;if(c.ctoId&&!c.port){toast('Escolha uma porta da CTO.');return}if(existing)data.clients=data.clients.map(x=>x.id===c.id?c:x);else data.clients.push(c);save();closeModal();renderMap();toast('Cliente salvo.')}}
-function showCto(cid){let c=data.ctos.find(x=>x.id===cid);if(!c)return;let clients=data.clients.filter(x=>x.ctoId===cid);let html=`<div class="row"><div class="stat"><b>${c.capacity}</b><span>Portas totais</span></div><div class="stat"><b>${clients.length}</b><span>Portas ocupadas</span></div><div class="stat"><b>${c.capacity-clients.length}</b><span>Livres</span></div></div><p class="notice">${esc(c.model||'CTO')} • ${c.lat.toFixed(6)}, ${c.lng.toFixed(6)}</p><div class="ports">${Array.from({length:c.capacity},(_,i)=>{let n=i+1,cl=clients.find(x=>+x.port===n);return `<div class="port ${cl?'used':''}" onclick="${cl?`showClient('${cl.id}')`:`addClientToPort('${c.id}',${n})`}"><b>Porta ${n}</b><br>${cl?esc(cl.name.split(' ')[0]):'Livre'}</div>`}).join('')}</div><div class="row"><button onclick="openCtoForm({lat:${c.lat},lng:${c.lng}},data.ctos.find(x=>x.id==='${c.id}'))">Editar CTO</button><button onclick="addClientToCto('${c.id}')">＋ Cliente</button><button class="danger" onclick="deleteItem('ctos','${c.id}')">Excluir</button></div>`;modal(esc(c.name),html)}
-function addClientToPort(cid,n){closeModal();openClientForm(null,cid,n)}
-function addClientToCto(cid){closeModal();openClientForm(null,cid,'')}
-function showBox(bid){let b=data.boxes.find(x=>x.id===bid);if(!b)return;modal(esc(b.name),`<p>${esc(b.type||'Caixa')}</p><p class="notice">${b.lat.toFixed(6)}, ${b.lng.toFixed(6)}<br>${esc(b.notes||'Sem observações.')}</p><div class="row"><button onclick="openBoxForm({lat:${b.lat},lng:${b.lng}},data.boxes.find(x=>x.id==='${b.id}'))">Editar</button><button class="danger" onclick="deleteItem('boxes','${b.id}')">Excluir</button></div>`)}
-function showClient(cid){let c=data.clients.find(x=>x.id===cid);if(!c)return;let ct=data.ctos.find(x=>x.id===c.ctoId);modal(esc(c.name),`<p><b>${esc(c.status)}</b> • ${esc(c.plan||'Plano não informado')}</p><p class="notice">Telefone: ${esc(c.phone||'—')}<br>Endereço: ${esc(c.address||'—')}<br>CTO: ${esc(ct?.name||'Sem vínculo')} • Porta ${esc(c.port||'—')}<br>Coordenadas: ${c.lat||'—'}, ${c.lng||'—'}</p><div class="row"><button onclick="openClientForm(data.clients.find(x=>x.id==='${c.id}'))">Editar</button><button class="danger" onclick="deleteItem('clients','${c.id}')">Excluir</button></div>`)}
-function deleteItem(collection,itemId){if(!confirm('Confirma a exclusão?'))return;data[collection]=data[collection].filter(x=>x.id!==itemId);if(collection==='ctos')data.clients.forEach(c=>{if(c.ctoId===itemId){c.ctoId='';c.port=''}});save();closeModal();renderMap()}
-function renderAll(){let occupied=data.clients.filter(c=>c.ctoId).length,total=data.ctos.reduce((a,c)=>a+(+c.capacity||0),0);document.getElementById('statCto').textContent=data.ctos.length;document.getElementById('statClients').textContent=data.clients.length;document.getElementById('statFree').textContent=Math.max(0,total-occupied);document.getElementById('statBoxes').textContent=data.boxes.length;let recent=[...data.ctos.map(x=>({...x,t:'CTO'})),...data.boxes.map(x=>({...x,t:'Caixa'})),...data.clients.map(x=>({...x,t:'Cliente'}))].slice(-6).reverse();document.getElementById('recentList').innerHTML=recent.length?recent.map(x=>`<div class="item"><div><strong>${esc(x.name)}</strong><small>${x.t}</small></div><span class="pill gray">${x.t}</span></div>`).join(''):'<div class="empty">Nenhum elemento cadastrado.</div>';renderLists()}
-function renderLists(){const q=(document.getElementById('search')?.value||'').toLowerCase();let ctos=data.ctos.filter(x=>x.name.toLowerCase().includes(q));document.getElementById('ctoList').innerHTML=ctos.length?ctos.map(x=>`<div class="item"><div><strong>${esc(x.name)}</strong><small>${x.capacity} portas • ${data.clients.filter(c=>c.ctoId===x.id).length} ocupadas</small></div><button onclick="showCto('${x.id}')">Abrir</button></div>`).join(''):'<div class="empty">Nenhuma CTO encontrada.</div>';let cls=data.clients.filter(x=>x.name.toLowerCase().includes(q)||String(x.phone).includes(q));document.getElementById('clientList').innerHTML=cls.length?cls.map(x=>`<div class="item"><div><strong>${esc(x.name)}</strong><small>${esc(x.plan||'Sem plano')} • ${esc(x.status)}</small></div><button onclick="showClient('${x.id}')">Abrir</button></div>`).join(''):'<div class="empty">Nenhum cliente encontrado.</div>';let bs=data.boxes.filter(x=>x.name.toLowerCase().includes(q));document.getElementById('boxList').innerHTML=bs.length?bs.map(x=>`<div class="item"><div><strong>${esc(x.name)}</strong><small>${esc(x.type||'Caixa')}</small></div><button onclick="showBox('${x.id}')">Abrir</button></div>`).join(''):'<div class="empty">Nenhuma caixa cadastrada.</div>'}
-function parseKml(txt){
- const xml=new DOMParser().parseFromString(txt,'application/xml');
- if(xml.querySelector('parsererror'))throw Error('O KML está malformado ou incompleto.');
- const local=(el,n)=>Array.from(el.children).find(x=>x.localName===n);
- const descendants=(el,n)=>Array.from(el.getElementsByTagNameNS('*',n));
- const text=(el,n)=>{let x=local(el,n);return x?.textContent?.trim()||''};
- const parseCoords=el=>(el?.textContent||'').trim().split(/\s+/).map(s=>s.split(',').map(Number)).filter(a=>a.length>=2&&Number.isFinite(a[0])&&Number.isFinite(a[1])).map(a=>a.slice(0,2));
- const features=[];
- function walk(container,folderPath=[]){
-  for(const child of Array.from(container.children)){
-   if(child.localName==='Folder'||child.localName==='Document'){
-    let nm=text(child,'name');walk(child,nm?[...folderPath,nm]:folderPath);
-   }else if(child.localName==='Placemark'){
-    const name=text(child,'name')||'Elemento sem nome';
-    const description=text(child,'description');
-    const styleUrl=text(child,'styleUrl');
-    let color='';
-    const lineStyle=descendants(child,'LineStyle')[0];
-    if(lineStyle){let k=text(lineStyle,'color');if(k.length===8){let aa=k.slice(0,2),bb=k.slice(2,4),gg=k.slice(4,6),rr=k.slice(6,8);color='#'+rr+gg+bb}}
-    const geoms=[];
-    function parseGeom(g){
-     if(g.localName==='Point'){let a=parseCoords(local(g,'coordinates'))[0];if(a)geoms.push({type:'Point',coordinates:a})}
-     else if(g.localName==='LineString'){let a=parseCoords(local(g,'coordinates'));if(a.length>1)geoms.push({type:'LineString',coordinates:a})}
-     else if(g.localName==='Polygon'){
-      let rings=descendants(g,'LinearRing').map(r=>parseCoords(local(r,'coordinates'))).filter(a=>a.length>2);
-      if(rings.length)geoms.push({type:'Polygon',coordinates:rings})
-     }else if(g.localName==='MultiGeometry'||g.localName==='MultiTrack'){Array.from(g.children).forEach(parseGeom)}
-     else if(g.localName==='Track'){
-      let coords=descendants(g,'coord').map(c=>c.textContent.trim().split(/\s+/).map(Number)).filter(a=>a.length>=2&&a.every(Number.isFinite)).map(a=>[a[0],a[1]]);
-      if(coords.length>1)geoms.push({type:'LineString',coordinates:coords})
-     }
-    }
-    Array.from(child.children).filter(x=>['Point','LineString','Polygon','MultiGeometry','MultiTrack','Track'].includes(x.localName)).forEach(parseGeom);
-    geoms.forEach((geometry,i)=>features.push({name:geoms.length>1?`${name} (${i+1})`:name,description,folder:folderPath.join(' / '),styleUrl,color,geometry}));
-   }
-  }
+function renderMap(){
+ if(!mapReady)return;
+ clearOverlays();
+ data.imports.forEach(f=>drawGeo(f));
+ data.cables.forEach(c=>{
+  if(c.path&&c.path.length>1)overlays.push(L.polyline(c.path.map(p=>[p.lat,p.lng]),{color:c.color||'#ffca55',weight:4}).addTo(map))
+ });
+ data.boxes.forEach(b=>addMarker(b,'box'));
+ data.ctos.forEach(c=>addMarker(c,'cto'));
+ data.clients.forEach(c=>{if(c.lat&&c.lng)addMarker(c,'client')});
+}
+function addMarker(obj,type){
+ let cls=type==='cto'?'map-cto':type==='box'?'map-box':'map-client';
+ let symbol=type==='cto'?'C':type==='box'?'□':'';
+ let marker=L.marker([+obj.lat,+obj.lng],{
+  icon:L.divIcon({
+   className:'',
+   html:`<div class="${cls}">${symbol}</div>`,
+   iconSize:type==='client'?[18,18]:[28,28],
+   iconAnchor:type==='client'?[9,9]:[14,14]
+  })
+ }).addTo(map);
+ marker.bindTooltip(esc(obj.name||obj.code||type),{direction:'top'});
+ marker.on('click',()=>{
+  if(type==='cto')showCto(obj.id);
+  else if(type==='box')showBox(obj.id);
+  else showClient(obj.id);
+ });
+ overlays.push(marker);
+}
+function drawGeo(f){
+ let g=f.geometry;if(!g)return;
+ let color=f.color||'#64a5ff';
+ if(g.type==='Point'){
+  let [lng,lat]=g.coordinates;
+  let marker=L.marker([lat,lng],{
+   icon:L.divIcon({className:'',html:'<div class="imported-point"><span>•</span></div>',iconSize:[28,28],iconAnchor:[14,28]})
+  }).addTo(map);
+  marker.bindTooltip(esc(f.name),{direction:'top'});
+  marker.bindPopup(`<div style="min-width:180px"><b>${esc(f.name)}</b><p style="font-size:11px;color:#667;margin:5px 0">${esc(f.folder||'Projeto importado')}</p><button onclick="promoteImported('${encodeURIComponent(f.name)}',${lat},${lng})">Cadastrar como CTO</button><br><br><button onclick="promoteImportedBox('${encodeURIComponent(f.name)}',${lat},${lng})">Cadastrar como caixa</button></div>`);
+  overlays.push(marker);
+ }else if(g.type==='LineString'||g.type==='MultiLineString'){
+  let paths=g.type==='LineString'?[g.coordinates]:g.coordinates;
+  paths.forEach(p=>overlays.push(L.polyline(p.map(a=>[a[1],a[0]]),{color,weight:3}).addTo(map)));
+ }else if(g.type==='Polygon'||g.type==='MultiPolygon'){
+  let polys=g.type==='Polygon'?[g.coordinates]:g.coordinates;
+  polys.forEach(p=>overlays.push(L.polygon(p.map(r=>r.map(a=>[a[1],a[0]])),{color,fillColor:color,fillOpacity:.12,weight:2}).addTo(map)));
  }
- walk(xml.documentElement,[]);
- return features;
 }
-async function importFile(file){
- try{
-  let txt;
-  if(file.name.toLowerCase().endsWith('.kmz')){
-   if(!window.JSZip)throw Error('Biblioteca de leitura KMZ não carregou. Verifique a internet e recarregue a página.');
-   const zip=await JSZip.loadAsync(file);
-   const candidates=Object.keys(zip.files).filter(x=>x.toLowerCase().endsWith('.kml')&&!zip.files[x].dir);
-   if(!candidates.length)throw Error('Não encontrei nenhum arquivo KML dentro deste KMZ.');
-   const chosen=candidates.includes('doc.kml')?'doc.kml':candidates[0];
-   txt=await zip.files[chosen].async('text');
-  }else txt=await file.text();
-  const features=parseKml(txt);
-  if(!features.length)throw Error('O arquivo foi aberto, mas não encontrei pontos, linhas ou polígonos reconhecidos.');
-  data.imports.push(...features);save();
-  if(mapReady){
-   renderMap();
-   const bounds=[];
-   features.forEach(f=>{let g=f.geometry;if(g.type==='Point')bounds.push([g.coordinates[1],g.coordinates[0]]);else if(g.type==='LineString')g.coordinates.forEach(a=>bounds.push([a[1],a[0]]));else if(g.type==='Polygon')g.coordinates.flat().forEach(a=>bounds.push([a[1],a[0]]))});
-   if(bounds.length)map.fitBounds(L.latLngBounds(bounds),{padding:[30,30],maxZoom:18});
+function setMode(m){
+ mode=m;cablePoints=[];
+ if(tempLine){map.removeLayer(tempLine);tempLine=null}
+ document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===m));
+ document.getElementById('finishCable').classList.toggle('hidden',m!=='cable');
+ let h=document.getElementById('hint');
+ h.style.display=m==='select'?'none':'block';
+ h.textContent=m==='cto'?'Clique no mapa para posicionar uma nova CTO.':m==='box'?'Clique no mapa para posicionar uma caixa ou emenda.':m==='cable'?'Clique nos pontos do trajeto. Use “Concluir cabo” ao terminar.':'';
+}
+function mapClick(pos){
+ if(mode==='select')return;
+ let p={lat:pos.lat,lng:pos.lng};
+ if(mode==='cto'){openCtoForm(p);setMode('select')}
+ else if(mode==='box'){openBoxForm(p);setMode('select')}
+ else if(mode==='cable'){
+  cablePoints.push(p);
+  if(!tempLine)tempLine=L.polyline(cablePoints.map(x=>[x.lat,x.lng]),{color:'#ffca55',weight:4,dashArray:'6 5'}).addTo(map);
+  else tempLine.setLatLngs(cablePoints.map(x=>[x.lat,x.lng]));
+ }
+}
+function finishCable(){
+ if(cablePoints.length<2){toast('Marque pelo menos dois pontos.');return}
+ let name=prompt('Identificação do cabo:','CABO-'+(data.cables.length+1));
+ if(name){data.cables.push({id:id('CAB'),name,path:cablePoints,color:'#ffca55'});save();toast('Cabo adicionado.')}
+ if(tempLine){map.removeLayer(tempLine);tempLine=null}
+ setMode('select');renderMap();
+}
+ function modal(title,body){
+ document.getElementById('modalRoot').innerHTML=`
+ <div class="modalback" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+   <div class="modalhead"><h2>${title}</h2><button class="close" onclick="closeModal()">✕</button></div>
+   ${body}
+  </div>
+ </div>`;
+}
+function closeModal(){document.getElementById('modalRoot').innerHTML=''}
+function openCtoForm(pos,existing=null){
+ let c=existing||{id:id('CTO'),name:'CTO-'+(data.ctos.length+1),lat:pos.lat,lng:pos.lng,capacity:16,notes:''};
+ modal(existing?'Editar CTO':'Cadastrar CTO',`
+ <form id="ctoForm">
+ <div class="field"><label>Nome / identificação</label><input name="name" required value="${esc(c.name)}"></div>
+ <div class="row">
+  <div class="field"><label>Capacidade</label><select name="capacity">${[8,16,24,32].map(n=>`<option value="${n}" ${c.capacity==n?'selected':''}>${n} portas</option>`).join('')}</select></div>
+  <div class="field"><label>Modelo</label><input name="model" value="${esc(c.model||'')}"></div>
+ </div>
+ <div class="field"><label>Região</label><input name="region" value="${esc(c.region||'')}"></div>
+ <div class="field"><label>Observações</label><textarea name="notes" rows="2">${esc(c.notes||'')}</textarea></div>
+ <div class="notice">Coordenadas: ${(+c.lat).toFixed(6)}, ${(+c.lng).toFixed(6)}</div>
+ <div class="row"><button type="button" onclick="closeModal()">Cancelar</button><button class="primary">Salvar CTO</button></div>
+ </form>`);
+ document.getElementById('ctoForm').onsubmit=e=>{
+  e.preventDefault();let f=new FormData(e.target);
+  Object.assign(c,{name:f.get('name'),capacity:+f.get('capacity'),model:f.get('model'),region:f.get('region'),notes:f.get('notes')});
+  if(existing)data.ctos=data.ctos.map(x=>x.id===c.id?c:x);else data.ctos.push(c);
+  save();closeModal();renderMap();toast('CTO cadastrada!');
+ };
+}
+function openBoxForm(pos,existing=null){
+ let b=existing||{id:id('CX'),name:'CX-'+(data.boxes.length+1),lat:pos.lat,lng:pos.lng,type:'CEO',notes:''};
+ modal(existing?'Editar caixa':'Cadastrar caixa',`
+ <form id="boxForm">
+ <div class="field"><label>Identificação</label><input name="name" required value="${esc(b.name)}"></div>
+ <div class="field"><label>Tipo de caixa</label><select name="type">${['CEO','DIO','Caixa de passagem','Caixa de emenda','POP','Outro'].map(x=>`<option ${b.type===x?'selected':''}>${x}</option>`).join('')}</select></div>
+ <div class="field"><label>Observações</label><textarea name="notes">${esc(b.notes||'')}</textarea></div>
+ <div class="row"><button type="button" onclick="closeModal()">Cancelar</button><button class="primary">Salvar caixa</button></div>
+ </form>`);
+ document.getElementById('boxForm').onsubmit=e=>{
+  e.preventDefault();let f=new FormData(e.target);
+  Object.assign(b,{name:f.get('name'),type:f.get('type'),notes:f.get('notes')});
+  if(existing)data.boxes=data.boxes.map(x=>x.id===b.id?b:x);else data.boxes.push(b);
+  save();closeModal();renderMap();toast('Caixa cadastrada!');
+ };
+}
+function openClientForm(existing=null,ctoId=null){
+ let c=existing||{id:id('CLI'),name:'',phone:'',address:'',plan:'',status:'Ativo',ctoId:ctoId||'',port:'',lat:'',lng:''};
+ modal(existing?'Editar cliente':'Cadastrar cliente',`
+ <form id="clientForm">
+ <div class="field"><label>Nome do cliente</label><input name="name" required value="${esc(c.name)}"></div>
+ <div class="row">
+  <div class="field"><label>Telefone</label><input name="phone" value="${esc(c.phone||'')}"></div>
+  <div class="field"><label>Plano</label><input name="plan" value="${esc(c.plan||'')}"></div>
+ </div>
+ <div class="field"><label>Endereço</label><input name="address" value="${esc(c.address||'')}"></div>
+ <div class="field"><label>CTO</label><select name="ctoId"><option value="">Sem CTO</option>${data.ctos.map(x=>`<option value="${x.id}" ${c.ctoId===x.id?'selected':''}>${esc(x.name)}</option>`).join('')}</select></div>
+ <div class="field"><label>Porta</label><input name="port" type="number" min="1" value="${esc(c.port||'')}"></div>
+ <div class="field"><label>Status</label><select name="status">${['Ativo','Suspenso','Cancelado','Em instalação'].map(x=>`<option ${c.status===x?'selected':''}>${x}</option>`).join('')}</select></div>
+ <div class="field"><label>Latitude</label><input name="lat" value="${esc(c.lat||'')}"></div>
+ <div class="field"><label>Longitude</label><input name="lng" value="${esc(c.lng||'')}"></div>
+ <div class="row"><button type="button" onclick="closeModal()">Cancelar</button><button class="primary">Salvar cliente</button></div>
+ </form>`);
+ document.getElementById('clientForm').onsubmit=e=>{
+  e.preventDefault();let f=new FormData(e.target);
+  Object.assign(c,Object.fromEntries(f.entries()));
+  c.lat=c.lat===''?'':+c.lat;c.lng=c.lng===''?'':+c.lng;
+  if(existing)data.clients=data.clients.map(x=>x.id===c.id?c:x);else data.clients.push(c);
+  save();closeModal();renderMap();toast('Cliente cadastrado!');
+ };
+}
+function showCto(cid){
+ let c=data.ctos.find(x=>x.id===cid);if(!c)return;
+ let clients=data.clients.filter(x=>x.ctoId===cid);
+ let used=new Set(clients.map(x=>+x.port));
+ modal('CTO • '+esc(c.name),`
+ <div class="notice">${esc(c.region||'Sem região')} • ${c.capacity} portas • ${clients.length} clientes</div>
+ <div class="ports">${Array.from({length:c.capacity},(_,i)=>{
+  let n=i+1,cl=clients.find(x=>+x.port===n);
+  return `<div class="port ${cl?'used':''}"><b>${n}</b><br>${cl?esc(cl.name.split(' ')[0]):'Livre'}</div>`;
+ }).join('')}</div>
+ <div class="row">
+ <button onclick="addClientToCto('${c.id}')">＋ Cliente</button>
+ <button onclick="showEngineeringCto('${c.id}')">Engenharia</button>
+ </div>
+ <div class="row" style="margin-top:9px">
+ <button onclick="openCtoForm({lat:${c.lat},lng:${c.lng}},data.ctos.find(x=>x.id==='${c.id}'))">Editar CTO</button>
+ <button class="danger" onclick="deleteCto('${c.id}')">Excluir</button>
+ </div>
+ <div class="section"><h3>Clientes vinculados</h3>
+ ${clients.length?clients.map(x=>`<div class="item"><div><strong>${esc(x.name)}</strong><small>Porta ${esc(x.port||'-')} • ${esc(x.status||'Ativo')}</small></div></div>`).join(''):'<div class="empty">Nenhum cliente vinculado.</div>'}
+ </div>`);
+}
+function addClientToCto(cid){closeModal();openClientForm(null,cid)}
+function showBox(idBox){
+ let b=data.boxes.find(x=>x.id===idBox);if(!b)return;
+ modal('Caixa • '+esc(b.name),`
+ <p class="notice">Tipo: ${esc(b.type)}<br>Observações: ${esc(b.notes||'Nenhuma')}</p>
+ <div class="row">
+ <button onclick="openBoxForm({lat:${b.lat},lng:${b.lng}},data.boxes.find(x=>x.id==='${b.id}'))">Editar</button>
+ <button class="danger" onclick="deleteBox('${b.id}')">Excluir</button>
+ </div>`);
+}
+function showClient(cid){
+ let c=data.clients.find(x=>x.id===cid);if(!c)return;
+ modal('Cliente • '+esc(c.name),`
+ <p class="notice">Telefone: ${esc(c.phone||'-')}<br>Plano: ${esc(c.plan||'-')}<br>Endereço: ${esc(c.address||'-')}<br>CTO: ${esc(data.ctos.find(x=>x.id===c.ctoId)?.name||'Não vinculada')}<br>Porta: ${esc(c.port||'-')}<br>Status: ${esc(c.status||'-')}</p>
+ <div class="row">
+ <button onclick="openClientForm(data.clients.find(x=>x.id==='${c.id}'))">Editar</button>
+ <button class="danger" onclick="deleteClient('${c.id}')">Excluir</button>
+ </div>`);
+}
+function deleteCto(cid){
+ if(!confirm('Excluir esta CTO? Os clientes vinculados ficarão sem CTO.'))return;
+ data.ctos=data.ctos.filter(x=>x.id!==cid);
+ data.clients.forEach(c=>{if(c.ctoId===cid)c.ctoId=''});
+ save();closeModal();renderMap();
+}
+function deleteBox(bid){
+ if(!confirm('Excluir esta caixa?'))return;
+ data.boxes=data.boxes.filter(x=>x.id!==bid);
+ save();closeModal();renderMap();
+}
+function deleteClient(cid){
+ if(!confirm('Excluir este cliente?'))return;
+ data.clients=data.clients.filter(x=>x.id!==cid);
+ save();closeModal();renderMap();
+}
+ // ===============================
+// IMPORTAÇÃO KML / KMZ
+// ===============================
+
+function parseCoordinates(text) {
+  return (text || "")
+    .trim()
+    .split(/\s+/)
+    .map(item => {
+      const p = item.split(",");
+      return {
+        lng: Number(p[0]),
+        lat: Number(p[1]),
+        alt: Number(p[2] || 0)
+      };
+    })
+    .filter(p => Number.isFinite(p.lat) && Number.isFinite(p.lng));
+}
+
+function getTagValue(el, tag) {
+  const found = el.getElementsByTagName(tag)[0];
+  return found ? found.textContent.trim() : "";
+}
+
+function parseKML(kmlText) {
+  const parser = new DOMParser();
+  const xml = parser.parseFromString(kmlText, "text/xml");
+
+  if (xml.querySelector("parsererror")) {
+    throw new Error("O arquivo KML está inválido.");
   }
-  const folders=[...new Set(features.map(f=>f.folder).filter(Boolean))];
-  toast(`${features.length} elementos importados${folders.length?' • '+folders.length+' pastas':''}.`);
-  alert(`Importação concluída!\\n\\n${features.length} elementos encontrados:\\n• ${features.filter(f=>f.geometry.type==='Point').length} pontos\\n• ${features.filter(f=>f.geometry.type==='LineString').length} linhas\\n• ${features.filter(f=>f.geometry.type==='Polygon').length} polígonos\\n• ${folders.length} pastas`);
- }catch(e){console.error(e);alert('Falha ao importar o projeto: '+e.message)}
+
+  const placemarks = [...xml.getElementsByTagName("Placemark")];
+  const elements = [];
+
+  placemarks.forEach((pm, index) => {
+    const name = getTagValue(pm, "name") || `Elemento ${index + 1}`;
+    const description = getTagValue(pm, "description");
+    const folder = pm.parentElement?.parentElement;
+    const folderName = folder?.tagName === "Folder"
+      ? getTagValue(folder, "name")
+      : "";
+
+    const styleUrl = getTagValue(pm, "styleUrl");
+    const styleId = styleUrl.replace("#", "");
+
+    const point = pm.getElementsByTagName("Point")[0];
+    const line = pm.getElementsByTagName("LineString")[0];
+    const polygon = pm.getElementsByTagName("Polygon")[0];
+    const multiGeometry = pm.getElementsByTagName("MultiGeometry")[0];
+
+    let geometry = null;
+    let type = "other";
+
+    if (point) {
+      geometry = {
+        type: "Point",
+        coordinates: parseCoordinates(getTagValue(point, "coordinates"))
+      };
+      type = "point";
+    } else if (line) {
+      geometry = {
+        type: "LineString",
+        coordinates: parseCoordinates(getTagValue(line, "coordinates"))
+      };
+      type = "line";
+    } else if (polygon) {
+      const rings = [...polygon.getElementsByTagName("LinearRing")]
+        .map(ring => parseCoordinates(getTagValue(ring, "coordinates")))
+        .filter(ring => ring.length);
+
+      geometry = {
+        type: "Polygon",
+        coordinates: rings
+      };
+      type = "polygon";
+    } else if (multiGeometry) {
+      const geometries = [];
+
+      [...multiGeometry.children].forEach(child => {
+        const tag = child.tagName;
+
+        if (tag === "Point") {
+          geometries.push({
+            type: "Point",
+            coordinates: parseCoordinates(getTagValue(child, "coordinates"))
+          });
+        }
+
+        if (tag === "LineString") {
+          geometries.push({
+            type: "LineString",
+            coordinates: parseCoordinates(getTagValue(child, "coordinates"))
+          });
+        }
+
+        if (tag === "Polygon") {
+          const rings = [...child.getElementsByTagName("LinearRing")]
+            .map(ring => parseCoordinates(getTagValue(ring, "coordinates")))
+            .filter(ring => ring.length);
+
+          geometries.push({
+            type: "Polygon",
+            coordinates: rings
+          });
+        }
+      });
+
+      geometry = {
+        type: "GeometryCollection",
+        geometries
+      };
+      type = "multi";
+    }
+
+    if (!geometry) return;
+
+    const styles = [...xml.getElementsByTagName("Style")];
+    let color = "#3388ff";
+
+    const style = styles.find(s => s.getAttribute("id") === styleId);
+
+    if (style) {
+      const colorTag = style.getElementsByTagName("color")[0];
+      if (colorTag) {
+        const kmlColor = colorTag.textContent.trim();
+        if (/^[0-9a-fA-F]{8}$/.test(kmlColor)) {
+          color = "#" + kmlColor.substring(6, 8) +
+            kmlColor.substring(4, 6) +
+            kmlColor.substring(2, 4);
+        }
+      }
+    }
+
+    elements.push({
+      id: id(),
+      name,
+      description,
+      folder: folderName,
+      styleUrl,
+      color,
+      type,
+      geometry,
+      importedAt: new Date().toISOString()
+    });
+  });
+
+  return elements;
 }
-function exportKml(){let placemarks=[];const pm=(name,coord,kind)=>`<Placemark><name>${esc(name)}</name><${kind}><coordinates>${coord}</coordinates></${kind}></Placemark>`;data.ctos.forEach(c=>placemarks.push(pm(c.name,`${c.lng},${c.lat},0`,'Point')));data.boxes.forEach(b=>placemarks.push(pm(b.name,`${b.lng},${b.lat},0`,'Point')));data.clients.forEach(c=>{if(c.lat&&c.lng)placemarks.push(pm(c.name,`${c.lng},${c.lat},0`,'Point'))});data.cables.forEach(c=>placemarks.push(pm(c.name,c.path.map(p=>`${p.lng},${p.lat},0`).join(' '),'LineString')));data.imports.forEach(f=>{let g=f.geometry;if(g.type==='Point')placemarks.push(pm(f.name,g.coordinates.join(',')+',0','Point'));else if(g.type==='LineString')placemarks.push(pm(f.name,g.coordinates.map(a=>a.join(',')+',0').join(' '),'LineString'))});let k=`<?xml version="1.0" encoding="UTF-8"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>Projeto FTTH</name>${placemarks.join('')}</Document></kml>`;download(new Blob([k],{type:'application/vnd.google-earth.kml+xml'}),'projeto-ftth.kml')}
-function download(blob,name){let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href)}
-document.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));document.getElementById('finishCable').onclick=finishCable;document.getElementById('importBtn').onclick=()=>document.getElementById('fileInput').click();document.getElementById('fileInput').onchange=e=>{if(e.target.files[0])importFile(e.target.files[0]);e.target.value=''};document.getElementById('exportBtn').onclick=exportKml;document.getElementById('addClientBtn').onclick=()=>openClientForm();document.getElementById('search').oninput=renderLists;document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));['overview','network','settings'].forEach(t=>document.getElementById(t).classList.toggle('hidden',t!==b.dataset.tab))});document.getElementById('backupBtn').onclick=()=>download(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),'backup-ftth.json');document.getElementById('clearBtn').onclick=()=>{if(confirm('Tem certeza? Todos os clientes, CTOs, cabos e importações serão apagados deste navegador.')){data={ctos:[],clients:[],boxes:[],cables:[],imports:[]};save();renderMap();toast('Dados apagados.')}};document.querySelectorAll('[data-mode]').forEach(()=>{});renderAll();initMap();
+
+async function importFile(file) {
+  if (!file) return;
+
+  try {
+    let content = "";
+
+    if (file.name.toLowerCase().endsWith(".kmz")) {
+      if (typeof JSZip === "undefined") {
+        throw new Error("Biblioteca de leitura KMZ não carregada.");
+      }
+
+      const zip = await JSZip.loadAsync(file);
+      const kmlFile = Object.values(zip.files).find(f =>
+        !f.dir && f.name.toLowerCase().endsWith(".kml")
+      );
+
+      if (!kmlFile) {
+        throw new Error("Nenhum arquivo KML encontrado dentro do KMZ.");
+      }
+
+      content = await kmlFile.async("text");
+    } else {
+      content = await file.text();
+    }
+
+    const elements = parseKML(content);
+
+    if (!elements.length) {
+      throw new Error("Nenhum elemento geográfico encontrado.");
+    }
+
+    data.imports.push(...elements);
+
+    save();
+    renderAll();
+
+    toast(`${elements.length} elementos importados com sucesso!`);
+  } catch (error) {
+    console.error(error);
+    toast(error.message || "Erro ao importar arquivo.");
+  }
+}
+
+// ===============================
+// CADASTRAR ELEMENTOS IMPORTADOS
+// ===============================
+
+function getImportedPosition(item) {
+  if (!item?.geometry) return null;
+
+  if (item.geometry.type === "Point") {
+    const p = item.geometry.coordinates?.[0];
+    if (p) return { lat: p.lat, lng: p.lng };
+  }
+
+  if (item.geometry.type === "GeometryCollection") {
+    const point = item.geometry.geometries.find(g => g.type === "Point");
+    const p = point?.coordinates?.[0];
+    if (p) return { lat: p.lat, lng: p.lng };
+  }
+
+  return null;
+}
+
+function promoteImported(importId) {
+  const item = data.imports.find(x => x.id === importId);
+  if (!item) return;
+
+  const pos = getImportedPosition(item);
+
+  if (!pos) {
+    toast("Esse elemento não possui coordenadas de ponto.");
+    return;
+  }
+
+  openCtoForm(pos, {
+    name: item.name,
+    region: item.folder || "",
+    notes: item.description || ""
+  });
+
+  closeModal();
+}
+
+function promoteImportedBox(importId) {
+  const item = data.imports.find(x => x.id === importId);
+  if (!item) return;
+
+  const pos = getImportedPosition(item);
+
+  if (!pos) {
+    toast("Esse elemento não possui coordenadas de ponto.");
+    return;
+  }
+
+  openBoxForm(pos, {
+    name: item.name,
+    notes: item.description || ""
+  });
+
+  closeModal();
+}
+
+// ===============================
+// EXPORTAR KML
+// ===============================
+
+function exportKML() {
+  const placemarks = [];
+
+  function pointPlacemark(name, lat, lng, description = "") {
+    return `
+      <Placemark>
+        <name>${esc(name)}</name>
+        <description>${esc(description)}</description>
+        <Point>
+          <coordinates>${lng},${lat},0</coordinates>
+        </Point>
+      </Placemark>`;
+  }
+
+  data.ctos.forEach(cto => {
+    placemarks.push(pointPlacemark(
+      cto.name,
+      cto.lat,
+      cto.lng,
+      `CTO | Capacidade: ${cto.capacity || 0}`
+    ));
+  });
+
+  data.boxes.forEach(box => {
+    placemarks.push(pointPlacemark(
+      box.name,
+      box.lat,
+      box.lng,
+      "Caixa de rede"
+    ));
+  });
+
+  data.clients.forEach(client => {
+    if (client.lat && client.lng) {
+      placemarks.push(pointPlacemark(
+        client.name,
+        client.lat,
+        client.lng,
+        `Cliente | Plano: ${client.plan || ""}`
+      ));
+    }
+  });
+
+  data.cables.forEach(cable => {
+    const coordinates = (cable.points || [])
+      .map(p => `${p.lng},${p.lat},0`)
+      .join(" ");
+
+    if (coordinates) {
+      placemarks.push(`
+        <Placemark>
+          <name>${esc(cable.name || "Cabo")}</name>
+          <LineString>
+            <tessellate>1</tessellate>
+            <coordinates>${coordinates}</coordinates>
+          </LineString>
+        </Placemark>`);
+    }
+  });
+
+  const kml = `<?xml version="1.0" encoding="UTF-8"?>
+  <kml xmlns="http://www.opengis.net/kml/2.2">
+    <Document>
+      <name>FTTH Manager</name>
+      ${placemarks.join("\n")}
+    </Document>
+  </kml>`;
+
+  const blob = new Blob([kml], {
+    type: "application/vnd.google-earth.kml+xml"
+  });
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "ftth-manager.kml";
+  a.click();
+  URL.revokeObjectURL(url);
+
+  toast("KML exportado!");
+}
+
+// ===============================
+// BACKUP E RESTAURAÇÃO
+// ===============================
+
+function exportBackup() {
+  const blob = new Blob(
+    [JSON.stringify(data, null, 2)],
+    { type: "application/json" }
+  );
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `ftth-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+
+  toast("Backup criado com sucesso!");
+}
+
+async function importBackup(file) {
+  if (!file) return;
+
+  try {
+    const backup = JSON.parse(await file.text());
+
+    if (!backup || typeof backup !== "object") {
+      throw new Error("Arquivo de backup inválido.");
+    }
+
+    data = {
+      ctos: Array.isArray(backup.ctos) ? backup.ctos : [],
+      clients: Array.isArray(backup.clients) ? backup.clients : [],
+      boxes: Array.isArray(backup.boxes) ? backup.boxes : [],
+      cables: Array.isArray(backup.cables) ? backup.cables : [],
+      imports: Array.isArray(backup.imports) ? backup.imports : []
+    };
+
+    save();
+    renderAll();
+    toast("Backup restaurado!");
+  } catch (error) {
+    toast(error.message || "Não foi possível restaurar o backup.");
+  }
+}
+
+// ===============================
+// ENGENHARIA DA CTO
+// ===============================
+
+function showEngineeringCto(ctoId) {
+  const cto = data.ctos.find(x => x.id === ctoId);
+  if (!cto) return;
+
+  const capacity = Number(cto.capacity || 8);
+  const clients = data.clients.filter(x => x.ctoId === ctoId);
+
+  const ports = Array.from({ length: capacity }, (_, i) => {
+    const portNumber = i + 1;
+    const client = clients.find(x => Number(x.port) === portNumber);
+
+    return `
+      <div class="port-item ${client ? "occupied" : "free"}">
+        <strong>Porta ${portNumber}</strong>
+        <span>${client ? esc(client.name) : "Livre"}</span>
+        ${client ? `<small>${esc(client.status || "Ativo")}</small>` : ""}
+      </div>`;
+  }).join("");
+
+  modal(
+    `Engenharia — ${esc(cto.name)}`,
+    `
+      <div class="engineering-summary">
+        <div>
+          <strong>${capacity}</strong>
+          <small>Portas totais</small>
+        </div>
+        <div>
+          <strong>${clients.length}</strong>
+          <small>Ocupadas</small>
+        </div>
+        <div>
+          <strong>${Math.max(0, capacity - clients.length)}</strong>
+          <small>Livres</small>
+        </div>
+      </div>
+
+      <h3>Distribuição das portas</h3>
+      <div class="diagram">
+        ${ports}
+      </div>
+
+      <div class="modal-actions">
+        <button class="primary" onclick="addClientToCto('${cto.id}')">
+          Cadastrar cliente
+        </button>
+        <button class="secondary" onclick="openSpliceForm('${cto.id}')">
+          Registrar fusão
+        </button>
+        <button class="secondary" onclick="openCableForm('${cto.id}')">
+          Registrar cabo
+        </button>
+      </div>
+    `
+  );
+}
+
+// ===============================
+// REGISTRO DE CABOS
+// ===============================
+
+function openCableForm(ctoId = "") {
+  const cto = data.ctos.find(x => x.id === ctoId);
+
+  modal(
+    "Registrar cabo",
+    `
+      <form id="cableForm">
+        <label>Nome do cabo</label>
+        <input name="name" required placeholder="Ex.: Cabo principal 12FO">
+
+        <label>Quantidade de fibras</label>
+        <input name="fibers" type="number" min="1" value="12" required>
+
+        <label>Origem</label>
+        <input name="origin" value="${esc(cto?.name || "")}" placeholder="Origem do cabo">
+
+        <label>Destino</label>
+        <input name="destination" placeholder="Destino do cabo">
+
+        <label>Observações</label>
+        <textarea name="notes" placeholder="Informações adicionais"></textarea>
+
+        <button class="primary" type="submit">Salvar cabo</button>
+      </form>
+    `
+  );
+
+  document.getElementById("cableForm").onsubmit = event => {
+    event.preventDefault();
+
+    const form = new FormData(event.target);
+
+    data.cables.push({
+      id: id(),
+      name: form.get("name"),
+      fibers: Number(form.get("fibers")),
+      origin: form.get("origin"),
+      destination: form.get("destination"),
+      notes: form.get("notes"),
+      points: [],
+      createdAt: new Date().toISOString()
+    });
+
+    save();
+    renderAll();
+    closeModal();
+    toast("Cabo cadastrado!");
+  };
+}
+
+// ===============================
+// REGISTRO DE FUSÕES
+// ===============================
+
+function openSpliceForm(ctoId = "") {
+  const cto = data.ctos.find(x => x.id === ctoId);
+
+  modal(
+    "Registrar fusão",
+    `
+      <form id="spliceForm">
+        <label>CTO relacionada</label>
+        <input name="ctoName" value="${esc(cto?.name || "")}" placeholder="Nome da CTO">
+
+        <label>Fibra de origem</label>
+        <input name="originFiber" required placeholder="Ex.: Cabo 01 - Fibra 1">
+
+        <label>Fibra de destino</label>
+        <input name="destinationFiber" required placeholder="Ex.: Cabo 02 - Fibra 1">
+
+        <label>Tipo de fusão</label>
+        <select name="type">
+          <option value="Continuidade">Continuidade</option>
+          <option value="Derivação">Derivação</option>
+          <option value="Reserva">Reserva</option>
+        </select>
+
+        <label>Observações</label>
+        <textarea name="notes"></textarea>
+
+        <button class="primary" type="submit">Salvar fusão</button>
+      </form>
+    `
+  );
+
+  document.getElementById("spliceForm").onsubmit = event => {
+    event.preventDefault();
+
+    const form = new FormData(event.target);
+
+    if (!Array.isArray(data.splices)) data.splices = [];
+
+    data.splices.push({
+      id: id(),
+      ctoId: ctoId || "",
+      ctoName: form.get("ctoName"),
+      originFiber: form.get("originFiber"),
+      destinationFiber: form.get("destinationFiber"),
+      type: form.get("type"),
+      notes: form.get("notes"),
+      createdAt: new Date().toISOString()
+    });
+
+    save();
+    closeModal();
+    renderAll();
+    toast("Fusão registrada!");
+  };
+}
+
+// ===============================
+// RELATÓRIO POR REGIÃO
+// ===============================
+
+function openRegionForm() {
+  const regions = [...new Set([
+    ...data.ctos.map(x => x.region),
+    ...data.clients.map(x => x.region)
+  ].filter(Boolean))];
+
+  modal(
+    "Relatório por região",
+    `
+      <form id="regionForm">
+        <label>Selecione a região</label>
+        <select name="region" required>
+          <option value="">Escolha uma região</option>
+          ${regions.map(region =>
+            `<option value="${esc(region)}">${esc(region)}</option>`
+          ).join("")}
+        </select>
+        <button class="primary" type="submit">Gerar relatório</button>
+      </form>
+      <div id="regionReport"></div>
+    `
+  );
+
+  document.getElementById("regionForm").onsubmit = event => {
+    event.preventDefault();
+
+    const region = new FormData(event.target).get("region");
+    const ctos = data.ctos.filter(x => x.region === region);
+    const clients = data.clients.filter(x => x.region === region);
+    const boxes = data.boxes.filter(x => x.region === region);
+
+    document.getElementById("regionReport").innerHTML = `
+      <div class="engineering-summary">
+        <div><strong>${ctos.length}</strong><small>CTOs</small></div>
+        <div><strong>${boxes.length}</strong><small>Caixas</small></div>
+        <div><strong>${clients.length}</strong><small>Clientes</small></div>
+      </div>
+      <h3>CTOs cadastradas</h3>
+      ${ctos.map(x => `<p>${esc(x.name)} — ${x.capacity || 0} portas</p>`).join("") || "<p>Nenhuma CTO cadastrada.</p>"}
+      <h3>Clientes cadastrados</h3>
+      ${clients.map(x => `<p>${esc(x.name)} — ${esc(x.plan || "")}</p>`).join("") || "<p>Nenhum cliente cadastrado.</p>"}
+    `;
+  };
+}
+
+// ===============================
+// RENDERIZAÇÃO DA ENGENHARIA
+// ===============================
+
+function renderEngineering() {
+  const container = document.getElementById("engineeringContent");
+  if (!container) return;
+
+  const splices = Array.isArray(data.splices) ? data.splices : [];
+
+  container.innerHTML = `
+    <div class="engineering-summary">
+      <div><strong>${data.cables.length}</strong><small>Cabos</small></div>
+      <div><strong>${splices.length}</strong><small>Fusões</small></div>
+      <div><strong>${data.ctos.length}</strong><small>CTOs</small></div>
+    </div>
+
+    <div class="engineering-actions">
+      <button class="primary" onclick="openCableForm()">Novo cabo</button>
+      <button class="secondary" onclick="openSpliceForm()">Nova fusão</button>
+      <button class="secondary" onclick="openRegionForm()">Relatório por região</button>
+    </div>
+
+    <h3>Cabos cadastrados</h3>
+    ${data.cables.map(c => `
+      <div class="list-item">
+        <strong>${esc(c.name)}</strong>
+        <small>${c.fibers || 0} fibras | ${esc(c.origin || "Sem origem")} → ${esc(c.destination || "Sem destino")}</small>
+      </div>
+    `).join("") || "<p>Nenhum cabo cadastrado.</p>"}
+
+    <h3>Fusões registradas</h3>
+    ${splices.map(s => `
+      <div class="list-item">
+        <strong>${esc(s.ctoName || "Sem CTO")}</strong>
+        <small>${esc(s.originFiber)} → ${esc(s.destinationFiber)}</small>
+        <small>${esc(s.type)}</small>
+      </div>
+    `).join("") || "<p>Nenhuma fusão registrada.</p>"}
+  `;
+}
+
+// ===============================
+// ATUALIZAÇÃO DOS PAINÉIS
+// ===============================
+
+function renderLists() {
+  const ctoList = document.getElementById("ctoList");
+  const clientList = document.getElementById("clientList");
+  const boxList = document.getElementById("boxList");
+  const importedList = document.getElementById("importedList");
+  const recentList = document.getElementById("recentList");
+
+  if (ctoList) {
+    ctoList.innerHTML = data.ctos.map(cto => `
+      <div class="list-item">
+        <strong>${esc(cto.name)}</strong>
+        <small>${cto.capacity || 0} portas | ${esc(cto.region || "Sem região")}</small>
+        <button onclick="showCto('${cto.id}')">Abrir</button>
+      </div>
+    `).join("") || "<p>Nenhuma CTO cadastrada.</p>";
+  }
+
+  if (clientList) {
+    clientList.innerHTML = data.clients.map(client => `
+      <div class="list-item">
+        <strong>${esc(client.name)}</strong>
+        <small>${esc(client.plan || "Sem plano")} | ${esc(client.status || "Ativo")}</small>
+        <button onclick="showClient('${client.id}')">Abrir</button>
+      </div>
+    `).join("") || "<p>Nenhum cliente cadastrado.</p>";
+  }
+
+  if (boxList) {
+    boxList.innerHTML = data.boxes.map(box => `
+      <div class="list-item">
+        <strong>${esc(box.name)}</strong>
+        <small>${esc(box.region || "Sem região")}</small>
+        <button onclick="showBox('${box.id}')">Abrir</button>
+      </div>
+    `).join("") || "<p>Nenhuma caixa cadastrada.</p>";
+  }
+
+  if (importedList) {
+    importedList.innerHTML = data.imports.map(item => `
+      <div class="list-item">
+        <strong>${esc(item.name)}</strong>
+        <small>${esc(item.folder || "Sem pasta")} | ${esc(item.type)}</small>
+        ${item.type === "point" ? `
+          <div class="inline-actions">
+            <button onclick="promoteImported('${item.id}')">Cadastrar CTO</button>
+            <button onclick="promoteImportedBox('${item.id}')">Cadastrar caixa</button>
+          </div>
+        ` : ""}
+      </div>
+    `).join("") || "<p>Nenhum elemento importado.</p>";
+  }
+
+  if (recentList) {
+    const recent = [
+      ...data.ctos.map(x => ({ ...x, kind: "CTO" })),
+      ...data.clients.map(x => ({ ...x, kind: "Cliente" })),
+      ...data.boxes.map(x => ({ ...x, kind: "Caixa" }))
+    ].slice(-8).reverse();
+
+    recentList.innerHTML = recent.map(x => `
+      <div class="list-item">
+        <strong>${esc(x.name)}</strong>
+        <small>${x.kind}</small>
+      </div>
+    `).join("") || "<p>Nenhum cadastro realizado.</p>";
+  }
+}
+
+function renderStats() {
+  const set = (elementId, value) => {
+    const el = document.getElementById(elementId);
+    if (el) el.textContent = value;
+  };
+
+  const occupied = data.clients.filter(c => c.ctoId).length;
+  const capacity = data.ctos.reduce(
+    (total, cto) => total + Number(cto.capacity || 0),
+    0
+  );
+
+  set("statCto", data.ctos.length);
+  set("statClients", data.clients.length);
+  set("statBoxes", data.boxes.length);
+  set("statImported", data.imports.length);
+  set("statFree", Math.max(0, capacity - occupied));
+}
+
+function renderAll() {
+  renderStats();
+  renderLists();
+  renderMap();
+
+  if (typeof renderEngineering === "function") {
+    renderEngineering();
+  }
+}
+ // ===============================
+// EVENTOS E CONTROLES
+// ===============================
+
+function setupEvents() {
+  const importBtn = document.getElementById("importBtn");
+  const exportBtn = document.getElementById("exportBtn");
+  const fileInput = document.getElementById("fileInput");
+  const backupBtn = document.getElementById("backupBtn");
+  const clearBtn = document.getElementById("clearBtn");
+  const search = document.getElementById("search");
+
+  if (importBtn && fileInput) {
+    importBtn.addEventListener("click", () => {
+      fileInput.accept = ".kml,.kmz";
+      fileInput.click();
+    });
+
+    fileInput.addEventListener("change", async event => {
+      const file = event.target.files?.[0];
+      if (file) await importFile(file);
+      fileInput.value = "";
+    });
+  }
+
+  if (exportBtn) {
+    exportBtn.addEventListener("click", exportKML);
+  }
+
+  if (backupBtn) {
+    backupBtn.addEventListener("click", exportBackup);
+  }
+
+  if (clearBtn) {
+    clearBtn.addEventListener("click", () => {
+      const confirmClear = confirm(
+        "Tem certeza que deseja apagar todos os dados deste dispositivo? Faça um backup antes."
+      );
+
+      if (!confirmClear) return;
+
+      data = {
+        ctos: [],
+        clients: [],
+        boxes: [],
+        cables: [],
+        imports: [],
+        splices: []
+      };
+
+      save();
+      renderAll();
+      toast("Dados apagados.");
+    });
+  }
+
+  if (search) {
+    search.addEventListener("input", () => {
+      const term = search.value.toLowerCase().trim();
+
+      document.querySelectorAll(
+        "#ctoList .list-item, #clientList .list-item, #boxList .list-item, #importedList .list-item"
+      ).forEach(item => {
+        item.style.display = item.textContent.toLowerCase().includes(term)
+          ? ""
+          : "none";
+      });
+    });
+  }
+
+  document.querySelectorAll("[data-mode]").forEach(button => {
+    button.addEventListener("click", () => {
+      setMode(button.dataset.mode);
+
+      document.querySelectorAll("[data-mode]").forEach(b => {
+        b.classList.toggle("active", b === button);
+      });
+    });
+  });
+
+  const finishButton = document.getElementById("finishCable");
+  if (finishButton) {
+    finishButton.addEventListener("click", finishCable);
+  }
+
+  // Navegação entre abas
+  document.querySelectorAll("[data-tab]").forEach(button => {
+    button.addEventListener("click", () => {
+      const tab = button.dataset.tab;
+
+      document.querySelectorAll("[data-tab]").forEach(b => {
+        b.classList.toggle("active", b === button);
+      });
+
+      document.querySelectorAll(".tab-panel").forEach(panel => {
+        panel.classList.toggle("active", panel.id === `tab-${tab}`);
+      });
+
+      setTimeout(() => {
+        if (map) map.invalidateSize();
+      }, 150);
+    });
+  });
+
+  // Fecha modal clicando fora
+  const modalRoot = document.getElementById("modalRoot");
+
+  if (modalRoot) {
+    modalRoot.addEventListener("click", event => {
+      if (event.target === modalRoot) closeModal();
+    });
+  }
+
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") closeModal();
+  });
+}
+
+// ===============================
+// VALIDAÇÃO DE PORTAS DA CTO
+// ===============================
+
+const originalOpenClientForm = openClientForm;
+
+openClientForm = function(existing = null, ctoId = null) {
+  originalOpenClientForm(existing, ctoId);
+
+  const form = document.getElementById("clientForm");
+  if (!form) return;
+
+  form.addEventListener("submit", event => {
+    const formData = new FormData(form);
+    const selectedCto = formData.get("ctoId");
+    const selectedPort = Number(formData.get("port"));
+
+    if (!selectedCto || !selectedPort) return;
+
+    const occupied = data.clients.some(client =>
+      client.id !== existing?.id &&
+      client.ctoId === selectedCto &&
+      Number(client.port) === selectedPort
+    );
+
+    if (occupied) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      toast("Essa porta já está ocupada por outro cliente.");
+    }
+  }, true);
+};
+
+// ===============================
+// ESTILOS COMPLEMENTARES
+// ===============================
+
+function addExtraStyles() {
+  const style = document.createElement("style");
+
+  style.textContent = `
+    .engineering-summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 14px 0;
+    }
+
+    .engineering-summary > div {
+      background: var(--panel, #171717);
+      border: 1px solid var(--border, #333);
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .engineering-summary strong {
+      display: block;
+      font-size: 23px;
+      margin-bottom: 5px;
+    }
+
+    .engineering-summary small {
+      color: var(--muted, #aaa);
+      font-size: 12px;
+    }
+
+    .diagram {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+      margin: 14px 0;
+    }
+
+    .port-item {
+      border: 1px solid var(--border, #333);
+      border-radius: 9px;
+      padding: 11px;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      overflow-wrap: anywhere;
+    }
+
+    .port-item strong {
+      font-size: 13px;
+    }
+
+    .port-item span {
+      font-size: 12px;
+    }
+
+    .port-item small {
+      font-size: 11px;
+      color: var(--muted, #aaa);
+    }
+
+    .port-item.free {
+      background: rgba(34, 197, 94, .08);
+      border-color: rgba(34, 197, 94, .35);
+    }
+
+    .port-item.occupied {
+      background: rgba(239, 68, 68, .08);
+      border-color: rgba(239, 68, 68, .35);
+    }
+
+    .engineering-actions,
+    .inline-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0;
+    }
+
+    .engineering-actions button,
+    .inline-actions button {
+      flex: 1;
+      min-width: 100px;
+    }
+
+    .list-item {
+      border-bottom: 1px solid var(--border, #333);
+      padding: 12px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .list-item small {
+      color: var(--muted, #aaa);
+      overflow-wrap: anywhere;
+    }
+
+    .imported-marker {
+      background: #168bff;
+      color: white;
+      border: 2px solid white;
+      border-radius: 50%;
+      width: 25px;
+      height: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      box-shadow: 0 1px 6px #0008;
+    }
+
+    .cto-marker {
+      background: #16a34a;
+      color: white;
+      border: 2px solid white;
+      width: 27px;
+      height: 27px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      border-radius: 5px;
+      box-shadow: 0 1px 6px #0008;
+    }
+
+    .box-marker {
+      background: #eab308;
+      color: #111;
+      border: 2px solid white;
+      width: 25px;
+      height: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      border-radius: 50%;
+      box-shadow: 0 1px 6px #0008;
+    }
+
+    .client-marker {
+      background: #2563eb;
+      color: white;
+      border: 2px solid white;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      box-shadow: 0 1px 6px #0008;
+    }
+
+    .leaflet-popup-content button {
+      margin: 4px 2px;
+      padding: 7px 9px;
+      border: 0;
+      border-radius: 6px;
+      cursor: pointer;
+      background: #222;
+      color: white;
+    }
+
+    @media (max-width: 600px) {
+      .engineering-summary {
+        gap: 6px;
+      }
+
+      .engineering-summary > div {
+        padding: 10px 5px;
+      }
+
+      .engineering-summary strong {
+        font-size: 19px;
+      }
+
+      .diagram {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  `;
+
+  document.head.appendChild(style);
+}
+
+// ===============================
+// INICIALIZAÇÃO DO APLICATIVO
+// ===============================
+
+function startApp() {
+  try {
+    if (typeof L === "undefined") {
+      toast("Não foi possível carregar o mapa. Verifique sua conexão.");
+      return;
+    }
+
+    addExtraStyles();
+
+    if (!Array.isArray(data.splices)) {
+      data.splices = [];
+    }
+
+    if (!Array.isArray(data.imports)) data.imports = [];
+    if (!Array.isArray(data.ctos)) data.ctos = [];
+    if (!Array.isArray(data.clients)) data.clients = [];
+    if (!Array.isArray(data.boxes)) data.boxes = [];
+    if (!Array.isArray(data.cables)) data.cables = [];
+
+    save();
+
+    initMap();
+    setupEvents();
+    renderAll();
+
+    console.log("FTTH Manager iniciado com sucesso.");
+  } catch (error) {
+    console.error("Erro ao iniciar FTTH Manager:", error);
+    toast("Erro ao iniciar o aplicativo. Abra o console para verificar.");
+  }
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", startApp);
+} else {
+  startApp();
+}
 </script>
-</body></html>
+</body>
+</html>

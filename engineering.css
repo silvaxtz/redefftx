@@ -1,0 +1,573 @@
+
+/* =========================================
+   PAINEL DE ENGENHARIA FTTH
+========================================= */
+
+#engineeringContent {
+  margin-top: 20px;
+}
+
+.engineering-section {
+  margin-bottom: 22px;
+}
+
+.engineering-section h3 {
+  color: var(--text);
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+/* RESUMO TÉCNICO */
+
+.engineering-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+  margin: 14px 0;
+}
+
+.engineering-summary > div {
+  min-width: 0;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 13px 7px;
+  text-align: center;
+}
+
+.engineering-summary strong {
+  display: block;
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 5px;
+}
+
+.engineering-summary small {
+  display: block;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+/* =========================================
+   DIAGRAMA DE CTO
+========================================= */
+
+.cto-diagram {
+  background: #0b1017;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 15px;
+  margin: 14px 0;
+}
+
+.cto-diagram-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.cto-diagram-header strong {
+  font-size: 13px;
+}
+
+.cto-diagram-header span {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+/* GRADE DE PORTAS */
+
+.cto-ports {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.cto-port {
+  position: relative;
+  min-width: 0;
+  min-height: 75px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface-2);
+  padding: 9px 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  text-align: center;
+  cursor: pointer;
+  transition: .18s;
+}
+
+.cto-port:hover {
+  border-color: #94a3b8;
+  transform: translateY(-2px);
+}
+
+.cto-port-number {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.cto-port-status {
+  font-size: 9px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.cto-port.free {
+  border-color: #166534;
+  background: #052e16;
+}
+
+.cto-port.free .cto-port-number {
+  color: #86efac;
+}
+
+.cto-port.occupied {
+  border-color: #991b1b;
+  background: #450a0a;
+}
+
+.cto-port.occupied .cto-port-number {
+  color: #fca5a5;
+}
+
+.cto-port.reserved {
+  border-color: #92400e;
+  background: #451a03;
+}
+
+.cto-port.reserved .cto-port-number {
+  color: #fcd34d;
+}
+
+/* =========================================
+   DETALHES DA PORTA
+========================================= */
+
+.port-detail {
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  border-radius: 10px;
+  padding: 13px;
+  margin-top: 12px;
+}
+
+.port-detail strong {
+  display: block;
+  margin-bottom: 7px;
+}
+
+.port-detail p {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+
+/* =========================================
+   DIAGRAMA DE SPLITTER
+========================================= */
+
+.splitter-diagram {
+  background: #0b1017;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 14px 0;
+}
+
+.splitter-input {
+  width: 100%;
+  padding: 12px;
+  text-align: center;
+  background: #3b0764;
+  border: 1px solid #9333ea;
+  border-radius: 9px;
+  color: #f3e8ff;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.splitter-branch {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.splitter-output {
+  position: relative;
+  min-width: 0;
+  min-height: 58px;
+  padding: 8px 3px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  font-size: 10px;
+  text-align: center;
+}
+
+.splitter-output strong {
+  font-size: 11px;
+}
+
+.splitter-output small {
+  font-size: 9px;
+  overflow-wrap: anywhere;
+}
+
+.splitter-output.free {
+  border-color: #166534;
+  background: #052e16;
+}
+
+.splitter-output.occupied {
+  border-color: #1d4ed8;
+  background: #172554;
+}
+
+/* =========================================
+   FUSÕES ÓPTICAS
+========================================= */
+
+.splice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.splice-card {
+  padding: 13px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+}
+
+.splice-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 9px;
+}
+
+.splice-card-header strong {
+  font-size: 12px;
+}
+
+.splice-type {
+  border-radius: 20px;
+  padding: 4px 8px;
+  font-size: 9px;
+  background: #312e81;
+  color: #c7d2fe;
+}
+
+.splice-connection {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.splice-connection .fiber-label {
+  padding: 6px 9px;
+  background: #0b1017;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+}
+
+.splice-arrow {
+  color: #60a5fa;
+  font-size: 16px;
+}
+
+/* =========================================
+   CORES DE FIBRAS
+========================================= */
+
+.fiber-color-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.fiber-color-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 9px 4px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-2);
+}
+
+.fiber-color-swatch {
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  border: 1px solid #ffffff66;
+}
+
+.fiber-color-item small {
+  font-size: 9px;
+}
+
+/* =========================================
+   CABOS ÓPTICOS
+========================================= */
+
+.cable-card {
+  padding: 13px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-2);
+  margin-bottom: 9px;
+}
+
+.cable-card-header {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 10px;
+}
+
+.cable-color-indicator {
+  width: 25px;
+  height: 8px;
+  flex: 0 0 25px;
+  border-radius: 8px;
+}
+
+.cable-card-header strong {
+  flex: 1;
+  font-size: 12px;
+}
+
+.cable-card-details {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.cable-card-details div {
+  padding: 8px;
+  background: #0b1017;
+  border-radius: 7px;
+}
+
+.cable-card-details small {
+  display: block;
+  font-size: 9px;
+  margin-bottom: 4px;
+}
+
+.cable-card-details strong {
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+/* =========================================
+   FIBRAS INDIVIDUAIS
+========================================= */
+
+.fiber-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.fiber-table th,
+.fiber-table td {
+  padding: 9px 7px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.fiber-table th {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.fiber-table td {
+  color: var(--text);
+}
+
+.fiber-table tr:hover td {
+  background: #1c2634;
+}
+
+/* =========================================
+   EQUIPAMENTOS
+========================================= */
+
+.equipment-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.equipment-info {
+  padding: 11px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+}
+
+.equipment-info small {
+  display: block;
+  font-size: 10px;
+  margin-bottom: 5px;
+}
+
+.equipment-info strong {
+  display: block;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+/* =========================================
+   OCUPAÇÃO DA CTO
+========================================= */
+
+.occupancy-bar {
+  width: 100%;
+  height: 9px;
+  overflow: hidden;
+  border-radius: 20px;
+  background: #293342;
+  margin: 9px 0;
+}
+
+.occupancy-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: #22c55e;
+  transition: width .25s;
+}
+
+.occupancy-fill.medium {
+  background: #f59e0b;
+}
+
+.occupancy-fill.high {
+  background: #ef4444;
+}
+
+/* =========================================
+   AÇÕES TÉCNICAS
+========================================= */
+
+.engineering-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0;
+}
+
+.engineering-actions button {
+  flex: 1;
+  min-width: 105px;
+  font-size: 11px;
+}
+
+.engineering-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 18px 0;
+}
+
+/* =========================================
+   RELATÓRIOS
+========================================= */
+
+.report-card {
+  padding: 14px;
+  margin-bottom: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.report-card h4 {
+  font-size: 12px;
+  margin: 0 0 10px;
+}
+
+.report-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+}
+
+.report-row:last-child {
+  border-bottom: 0;
+}
+
+.report-row span {
+  color: var(--muted);
+}
+
+.report-row strong {
+  text-align: right;
+}
+
+/* =========================================
+   RESPONSIVIDADE
+========================================= */
+
+@media(max-width: 650px) {
+  .cto-ports {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .splitter-branch {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .fiber-color-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .engineering-summary strong {
+    font-size: 19px;
+  }
+
+  .engineering-summary > div {
+    padding: 10px 5px;
+  }
+
+  .equipment-details {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media(max-width: 380px) {
+  .cto-ports {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .splitter-branch {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

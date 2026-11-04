@@ -9,7 +9,7 @@ const FIBER_COLORS=[
 const uid=p=>`${p}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,7)}`;
 const blankProject=(name,center)=>({id:uid("proj"),name,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),center:center||[-8.991,-36.055],elements:[],cables:[],areas:[],imports:[],settings:{labels:true,imports:true}});
 function readDB(){try{const x=JSON.parse(localStorage.getItem(DB_KEY)||"null");if(x&&Array.isArray(x.projects)&&x.projects.length)return x}catch(e){console.warn(e)}const p=blankProject("Meu primeiro projeto");return {activeId:p.id,projects:[p]}}
-let db=readDB(),project=null,map=null,baseLayers={},labelLayers={},elementLayer=null,cableLayer=null,areaLayer=null,importLayer=null,activeTool="select",drawing=[],preview=null,history=[],future=[],searchMarker=null,saveTimer=null;
+let db=readDB(),project=null,map=null,baseLayers={},labelLayers={},elementLayer=null,cableLayer=null,areaLayer=null,importLayer=null,activeTool="select",drawing=[],preview=null,history=[],future=[],searchMarker=null,saveTimer=null,lastCommitted=null;
 const $=id=>document.getElementById(id);
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function toast(msg){const t=$("toast");t.textContent=msg;t.hidden=false;clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.hidden=true,2400)}

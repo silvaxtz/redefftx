@@ -41,7 +41,7 @@ function equipmentSvg(type){
  };
  return `<svg viewBox="0 0 64 68" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">${art[type]||art.cto}</svg>`;
 }
-function markerIcon(type){const colors={cto:"#22b978",ceo:"#e69b36",splitter:"#9868d6",client:"#438fda"};return L.divIcon({className:"custom-marker",html:`<div class="marker-illustration ${type}" style="--marker-color:${colors[type]||'#64748b'}">${equipmentSvg(type)}</div>`,iconSize:[58,64],iconAnchor:[29,57]})}
+function markerIcon(type){const colors={cto:"#22b978",ceo:"#e69b36",splitter:"#9868d6",client:"#438fda"};return L.divIcon({className:"custom-marker",html:`<div class="marker-illustration ${type}" style="--marker-color:${colors[type]||'#64748b'}">${equipmentSvg(type)}</div>`,iconSize:[32,36],iconAnchor:[16,34]})}
 function renderMap(){
  if(!map)return;elementLayer.clearLayers();cableLayer.clearLayers();areaLayer.clearLayers();importLayer.clearLayers();
  project.elements.forEach(e=>{if(!Number.isFinite(+e.lat)||!Number.isFinite(+e.lng))return;const m=L.marker([+e.lat,+e.lng],{icon:markerIcon(e.type)}).bindTooltip(esc(e.name));m.on("click",()=>{if(activeTool==="select")openElement(e.id)});elementLayer.addLayer(m)});

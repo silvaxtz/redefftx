@@ -32,7 +32,16 @@ function initMap(){
  elementLayer=L.layerGroup().addTo(map);cableLayer=L.layerGroup().addTo(map);areaLayer=L.layerGroup().addTo(map);importLayer=L.layerGroup().addTo(map);
  map.on("click",onMapClick);map.on("mousemove",onMapMove);renderMap();
 }
-function markerIcon(type){const labels={cto:"CTO",ceo:"CEO",splitter:"1:N",client:"⌂"};return L.divIcon({className:"custom-marker",html:`<div class="marker-shell ${type}">${labels[type]||"?"}</div>`,iconSize:[36,36],iconAnchor:[18,18]})}
+function equipmentSvg(type){
+ const art={
+  cto:`<rect x="12" y="7" width="40" height="48" rx="7" fill="#202a35" stroke="#d8e2ec" stroke-width="2"/><rect x="17" y="12" width="30" height="38" rx="4" fill="#344353" stroke="#8798a9"/><path d="M22 17h20M22 22h20M22 39h20" stroke="#91a3b5" stroke-width="1.5"/><path d="M8 18h5v9H8m41-9h5v9h-5M23 55v7m9-7v7m9-7v7" stroke="#c4d0dc" stroke-width="2.5" stroke-linecap="round"/>`,
+  ceo:`<path d="M20 8h24l5 7v32l-5 9H20l-5-9V15z" fill="#293542" stroke="#e1a34b" stroke-width="2.5"/><path d="M20 17h24M20 45h24M25 23v16m7-16v16m7-16v16" stroke="#aab9c8" stroke-width="2"/><path d="M25 56v6m14-6v6" stroke="#d6e0e9" stroke-width="2.5" stroke-linecap="round"/>`,
+  splitter:`<rect x="8" y="16" width="48" height="32" rx="6" fill="#302744" stroke="#c6a4fa" stroke-width="2"/><path d="M15 24h34M15 39h34" stroke="#9e83c8" stroke-width="1.5"/><path d="M18 48v9m8-9v9m8-9v9m8-9v9m8-9v9" stroke="#55d18a" stroke-width="3" stroke-linecap="round"/><circle cx="18" cy="31" r="2" fill="#f1c66d"/><circle cx="26" cy="31" r="2" fill="#f1c66d"/><circle cx="34" cy="31" r="2" fill="#f1c66d"/><circle cx="42" cy="31" r="2" fill="#f1c66d"/>`,
+  client:`<path d="M8 30 32 9l24 21v27H8z" fill="#253b53" stroke="#9bcaff" stroke-width="2.5" stroke-linejoin="round"/><path d="M25 57V38h14v19M15 34h9v9h-9z" fill="#8ec5ff" stroke="#dceeff" stroke-width="1.5"/><path d="M4 30 32 5l28 25" fill="none" stroke="#dceeff" stroke-width="3" stroke-linecap="round"/>`
+ };
+ return `<svg viewBox="0 0 64 68" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">${art[type]||art.cto}</svg>`;
+}
+function markerIcon(type){const colors={cto:"#22b978",ceo:"#e69b36",splitter:"#9868d6",client:"#438fda"};return L.divIcon({className:"custom-marker",html:`<div class="marker-illustration ${type}" style="--marker-color:${colors[type]||'#64748b'}">${equipmentSvg(type)}</div>`,iconSize:[58,64],iconAnchor:[29,57]})}
 function renderMap(){
  if(!map)return;elementLayer.clearLayers();cableLayer.clearLayers();areaLayer.clearLayers();importLayer.clearLayers();
  project.elements.forEach(e=>{if(!Number.isFinite(+e.lat)||!Number.isFinite(+e.lng))return;const m=L.marker([+e.lat,+e.lng],{icon:markerIcon(e.type)}).bindTooltip(esc(e.name));m.on("click",()=>{if(activeTool==="select")openElement(e.id)});elementLayer.addLayer(m)});
@@ -86,5 +95,5 @@ function bindUI(){
  $("fileInput").onchange=async e=>{if(e.target.files[0])await importFile(e.target.files[0]);e.target.value=""};
  window.addEventListener("beforeunload",()=>{clearTimeout(saveTimer);saveNow()});
 }
-function start(){project=db.projects.find(p=>p.id===db.activeId)||db.projects[0];lastCommitted=snapshot();bindUI();initMap();renderSidebar();setTool("select");saveNow()}
+function start(){document.querySelectorAll(".equipment-icon").forEach(el=>{const card=el.closest("[data-tool]");if(card)el.innerHTML=equipmentSvg(card.dataset.tool)});project=db.projects.find(p=>p.id===db.activeId)||db.projects[0];lastCommitted=snapshot();bindUI();initMap();renderSidebar();setTool("select");saveNow()}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start);else start();
